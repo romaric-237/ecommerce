@@ -1,26 +1,27 @@
-package com.example.ecommerce.entity;
+package com.example.ecommerce.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import java.util.List;
 import lombok.*;
+import java.util.List;
 
 @Entity
-@Table(name="categorie")
+@Table(name = "categorie")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Categorie {
+public class CategoryEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name="nom")
+
     private String nom;
-    @Column(name="description")
     private String description;
-    @OneToMany(mappedBy = "categorie", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<Produit> produits;
+    private List<ProductEntity> produitentity;
 }
