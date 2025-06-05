@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import ProductDetail from '../views/ProductDetail.vue'
+import CategoryProducts from '../views/CategoryProducts.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,6 +19,16 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue'),
     },
+    {
+      path: '/product/:id',
+      name: 'product-detail',
+      component: ProductDetail
+    },
+    {
+      path: '/category/:id',
+      name: 'category-products',
+      component: CategoryProducts
+    }
   ],
 })
 
