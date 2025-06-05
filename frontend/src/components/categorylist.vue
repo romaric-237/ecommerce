@@ -57,256 +57,67 @@ const getCategoryImage = (categoryName) => {
 </script>
 
 <template>
-  <section class="categories-section">
+  <section class="py-4">
     <div class="container">
-      <h1 class="section-title">Explorez Nos Collections</h1>
-      <p class="section-subtitle">Découvrez notre sélection de produits par catégorie</p>
+      <h1 class="display-5 text-center text-dark mb-2">Explorez Nos Collections</h1>
+      <p class="lead text-center text-muted mb-5">Découvrez notre sélection de produits par catégorie</p>
 
-      <div v-if="loading" class="loading-container">
-        <div class="spinner"></div>
-        <p>Chargement des catégories...</p>
+      <!-- Loading State -->
+      <div v-if="loading" class="d-flex flex-column align-items-center justify-content-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted">Chargement des catégories...</p>
       </div>
 
-      <div v-else-if="error" class="error-message">
-        <i class="fas fa-exclamation-circle"></i>
+      <!-- Error State -->
+      <div v-else-if="error" class="alert alert-danger text-center" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
         {{ error }}
       </div>
 
-      <div v-else class="categories-grid">
-        <RouterLink 
-          v-for="category in categories" 
-          :key="category.id" 
-          :to="'/category/' + category.id"
-          class="category-card"
-        >
-          <div class="category-thumbnail" :style="{ backgroundImage: `url(${getCategoryImage(category.nom)})` }">
-            <div class="category-overlay">
-              <i :class="getCategoryIcon(category.nom)" class="category-icon"></i>
+      <!-- Categories Grid -->
+      <div v-else class="row g-4">
+        <div v-for="category in categories" 
+             :key="category.id" 
+             class="col-12 col-md-6 col-lg-4">
+          <RouterLink 
+            :to="'/category/' + category.id"
+            class="card card-hover text-decoration-none h-100"
+          >
+            <div class="position-relative h-48 bg-cover bg-center" 
+                 :style="{ backgroundImage: `url(${getCategoryImage(category.nom)})` }">
+              <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-b from-black/20 to-black/60 d-flex align-items-center justify-content-center">
+                <i :class="[getCategoryIcon(category.nom), 'text-4xl text-white']"></i>
+              </div>
             </div>
-          </div>
-          <div class="category-content">
-            <h3 class="category-title">{{ category.nom }}</h3>
-            <p class="category-description">{{ category.description }}</p>
-            <span class="view-products-btn">Voir les produits</span>
-          </div>
-        </RouterLink>
+            <div class="card-body p-4">
+              <h3 class="h5 fw-bold text-dark mb-2">{{ category.nom }}</h3>
+              <p class="text-muted small mb-3 line-clamp-2">{{ category.description }}</p>
+              <button class="btn btn-primary w-100">Voir les produits</button>
+            </div>
+          </RouterLink>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <style scoped>
-.categories-section {
-  padding: 1rem;
-  background: transparent;
-}
-
-.section-title {
-  color: #1f2937;
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-.section-subtitle {
-  color: #6b7280;
-  font-size: 1.125rem;
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-.loading-container {
-  text-align: center;
-  padding: 2rem;
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 1rem;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.error-message {
-  text-align: center;
-  padding: 2rem;
-  color: #dc3545;
-  font-size: 1.1rem;
-}
-
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 0.5rem;
-}
-
-.category-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  text-decoration: none;
-  color: inherit;
-  position: relative;
-  overflow: hidden;
-}
-
-.category-thumbnail {
-  height: 200px;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.category-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.6));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.category-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-}
-
-.category-card:hover::before {
-  opacity: 1;
-}
-
-.category-card:hover .category-overlay {
-  background: linear-gradient(to bottom, rgba(99,102,241,0.8), rgba(79,70,229,0.9));
-}
-
-.category-icon {
-  font-size: 3rem;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  transition: all 0.3s ease;
-}
-
-.category-card:hover .category-icon {
-  transform: scale(1.1);
-}
-
-.category-content {
-  padding: 1.25rem;
-  background: white;
-}
-
-.category-title {
-  color: #1f2937;
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.category-description {
-  color: #6b7280;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
+.line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.view-products-btn {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: inline-block;
-}
-
-.view-products-btn:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-  transform: translateY(-2px);
+.h-48 {
+  height: 12rem;
 }
 
 @media (max-width: 768px) {
-  .categories-section {
-    padding: 0.5rem;
-  }
-
-  .section-title {
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .section-subtitle {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .categories-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 0;
-  }
-
-  .category-thumbnail {
-    height: 160px;
-  }
-
-  .category-content {
-    padding: 1rem;
-  }
-
-  .category-title {
-    font-size: 1.1rem;
-  }
-
-  .category-description {
-    font-size: 0.8rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .view-products-btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .categories-section {
-    padding: 0.25rem;
-  }
-
-  .section-title {
-    font-size: 1.25rem;
-  }
-
-  .section-subtitle {
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-  }
-
-  .category-thumbnail {
-    height: 140px;
+  .h-48 {
+    height: 10rem;
   }
 }
 </style>
