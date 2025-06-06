@@ -10,7 +10,7 @@
 
     <div v-else-if="product" class="product-card">
       <div class="product-image-section">
-        <img :src="product.thumbnailUrl || 'https://via.placeholder.com/400x300?text=No+Image'"
+        <img :src="displayedImageUrl || 'https://via.placeholder.com/400x300?text=No+Image'"
              :alt="product.nom" class="product-image" />
       </div>
       <div class="product-info-section">
@@ -44,12 +44,13 @@
 
 <script>
 import productService from '@/services/productService';
+import unsplashService from "@/services/unsplashService.js";
 
 export default {
   name: 'ProductDetail',
   props: {
     id: {
-      type: [String, Number], // Peut être un string si l'URL le donne ainsi, ou un nombre
+      type: [String, Number],
       required: true
     }
   },
@@ -57,25 +58,35 @@ export default {
     return {
       product: null,
       isLoading: true,
-      error: null
+      error: null,
+      unsplashImageUrl: null
     };
+  },
+  computed: {
+    displayedImageUrl() {
+      return  this.unsplashImageUrl || 'https://via.placeholder.com/400x300?text=Image+Produit';
+    }
   },
   async created() {
     await this.fetchProduct();
   },
   watch: {
-    // Surveille les changements d'ID dans l'URL pour recharger le produit si l'ID change
     id: 'fetchProduct'
   },
   methods: {
     async fetchProduct() {
       this.isLoading = true;
       this.error = null;
-      this.product = null; // Réinitialiser le produit précédent
+      this.product = null;
+      this.unsplashImageUrl = null;
+
       try {
         const fetchedProduct = await productService.getProductById(this.id);
-        // Assurez-vous que productService.getProductById retourne une instance de Product
         this.product = fetchedProduct;
+        if (this.product ) {
+          const query = this.product.nom || this.product.categoryNom || this.product.marque || 'product';
+          this.unsplashImageUrl = await unsplashService.searchImage(query);
+        }
       } catch (err) {
         if (err.response && err.response.status === 404) {
           this.error = "Produit non trouvé.";

@@ -14,7 +14,7 @@
                    :to="{ name: 'product-detail', params: { id: product.id } }"
                    class="product-item">
         <div class="thumbnail-wrapper" @mouseover="showTooltip(product)" @mouseleave="hideTooltip">
-          <img :src="product.thumbnailUrl || 'https://via.placeholder.com/150?text=No+Image'" :alt="product.nom" class="product-thumbnail" />
+          <img :src="getProductImageUrl(product)" :alt="product.nom" class="product-thumbnail"/>
           <div v-if="hoveredProduct === product" class="tooltip">
             {{ product.nom }}
           </div>
@@ -28,6 +28,7 @@
 
 <script>
 import productService from '@/services/productService';
+import unsplashService from '@/services/unsplashService';
 
 export default {
   name: 'ProductList',
@@ -50,7 +51,8 @@ export default {
       products: [],
       isLoading: true,
       error: null,
-      hoveredProduct: null
+      hoveredProduct: null,
+      unsplashImageCache: new Map()
     };
   },
   watch: {
@@ -63,7 +65,7 @@ export default {
   },
   computed: {
     title() {
-      return this.isTitleCenter ? `Produits : ${this.categoryName}`: 'Nos produits';
+      return this.isTitleCenter ? `Produits : ${this.categoryName}` : 'Nos produits';
     }
   },
   methods: {
@@ -75,6 +77,14 @@ export default {
           this.products = await productService.getProductsByCategory(categoryId);
         } else {
           this.products = await productService.getAllProducts();
+        }
+        for (const product of this.products) {
+          const query = product.nom || product.categoryNom || product.marque || 'product';
+          // Vérifier le cache avant de faire une requête
+          if (!this.unsplashImageCache.has(query)) {
+            const imageUrl = await unsplashService.searchImage(query);
+            this.unsplashImageCache.set(query, imageUrl);
+          }
         }
       } catch (err) {
         this.error = "Impossible de charger les produits. Veuillez réessayer plus tard.";
@@ -90,8 +100,10 @@ export default {
     hideTooltip() {
       this.hoveredProduct = null;
     },
-    selectedProduct(id) {
-      this.$router.push({ path: '/product/:id', query: { id: id}})
+    getProductImageUrl(product) {
+      const query = product.nom || product.categoryNom || product.marque || 'product';
+      return this.unsplashImageCache.get(query) || 'https://via.placeholder.com/150?text=Produit';
+
     }
   }
 };
@@ -184,9 +196,11 @@ h2 {
 .thumbnail-wrapper:hover .tooltip {
   opacity: 1; /* Apparaît au survol */
 }
+
 .text-center {
   text-align: left;
 }
+
 /* Vous pouvez ajouter d'autres styles pour les détails du produit si vous en affichez */
 /* .product-name {
   margin-top: 10px;

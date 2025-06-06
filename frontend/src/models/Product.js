@@ -1,7 +1,7 @@
 // src/models/Product.js
 
 export default class Product {
-    constructor({ id, nom, description, marque, prix, thumbnailUrl, genre, taille, category }) {
+    constructor({id, nom, description, marque, prix, thumbnailUrl, genre, taille, category, categoryNom}) {
         this.id = id;
         this.nom = nom;
         this.description = description;
@@ -11,6 +11,7 @@ export default class Product {
         this.genre = genre;
         this.taille = taille;
         this.category = category; // Cet objet sera l'objet CategoryEntity brut si renvoyé par le backend
+        this.categoryNom = categoryNom
     }
 
     /**
@@ -30,8 +31,8 @@ export default class Product {
      * @param {Object} [data.category] - L'objet CategoryEntity ou juste un ID.
      * @returns {Product} Une nouvelle instance de Product.
      */
-    static build({ id, nom, description, marque, prix, thumbnailUrl, genre, taille, category }) {
-        return new Product({ id, nom, description, marque, prix, thumbnailUrl, genre, taille, category });
+    static build({id, nom, description, marque, prix, thumbnailUrl, genre, taille, category, categoryNom}) {
+        return new Product({id, nom, description, marque, prix, thumbnailUrl, genre, taille, category, categoryNom});
     }
 
     /**
@@ -55,7 +56,8 @@ export default class Product {
             thumbnailUrl: value.thumbnailUrl,
             genre: value.genre,
             taille: value.taille,
-            category: value.category? value.category:null // Assurez-vous que l'objet category est bien passé s'il est présent
+            category: value.category ? value.category : null,
+            categoryNom: value.categoryNom ? value.categoryNom : null
         });
     }
 
@@ -92,7 +94,8 @@ export default class Product {
             thumbnailUrl: this.thumbnailUrl,
             genre: this.genre,
             taille: this.taille,
-            category: this.category // Si category est un objet, il sera aussi inclus
+            category: this.category,
+            categoryNom: this.categoryNom
         };
     }
 }
