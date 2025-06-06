@@ -1,21 +1,16 @@
-<script setup>
-import { RouterView } from 'vue-router'
+<script>
+import Navbar from "@/components/Navbar.vue";
+
+export default {
+  name: 'App',
+  components: {
+    Navbar: Navbar
+  }
+}
 </script>
 
 <template>
+  <Navbar/>
   <RouterView />
 </template>
 
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: #2c3e50;
-}
-</style>

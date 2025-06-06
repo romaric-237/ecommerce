@@ -1,5 +1,7 @@
 package com.example.ecommerce.controller;
 
+import com.example.ecommerce.controller.dto.CategoryDTO;
+import com.example.ecommerce.controller.dto.ProductDTO;
 import com.example.ecommerce.entities.CategoryEntity;
 import com.example.ecommerce.entities.ProductEntity;
 import com.example.ecommerce.repositories.CategoryRepository;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -22,19 +25,27 @@ public class CategoryController {
     private ProductRepository productRepository;
 
     @GetMapping("/categories")
-    public List<CategoryEntity> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<CategoryDTO> getAllCategories() {
+        List<CategoryEntity> categories = categoryRepository.findAll();
+        List<CategoryDTO> categoryDTOs = categories.stream()
+                .map(CategoryDTO::new)
+                .collect(Collectors.toList());
+        return categoryDTOs;
     }
 
-    @GetMapping("/categories/{id}")
-    public ResponseEntity<CategoryEntity> getCategoryById(@PathVariable int id) {
-        return categoryRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/category/{id}")
+    public CategoryDTO getCategoryById(@PathVariable int id) {
+
+        return categoryRepository.findById(id).map(CategoryDTO::new).orElse(null);
     }
 
-    @GetMapping("/categories/{id}/products")
-    public List<ProductEntity> getProductsByCategory(@PathVariable int id) {
-        return productRepository.findByCategoryId(id);
-    }
+//    @GetMapping("/products/category/{id}")
+//    public ResponseEntity<List<ProductDTO>> getProductsByCategory(@PathVariable int id) {
+//        List<ProductEntity> products = productRepository.findByCategoryId(id);
+//        List<ProductDTO> productDTOs = products.stream()
+//                .map(ProductDTO::new)
+//                .collect(Collectors.toList());
+//        return ResponseEntity.ok(productDTOs);
+//    }
+
 }

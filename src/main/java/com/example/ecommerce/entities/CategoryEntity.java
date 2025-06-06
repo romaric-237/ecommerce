@@ -1,6 +1,5 @@
 package com.example.ecommerce.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -22,6 +21,37 @@ public class CategoryEntity {
     private String description;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    @JsonManagedReference
     private List<ProductEntity> produitentity;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<ProductEntity> getProduitentity() {
+        return produitentity;
+    }
+
+    public void setProduitentity(List<ProductEntity> produitentity) {
+        this.produitentity = produitentity;
+    }
 }
