@@ -2,8 +2,7 @@
 import axios from 'axios';
 import Product from "@/models/Product.js";
 
-
-const API_BASE_URL = 'http://localhost:9494/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 const productService = {
     /**
@@ -13,6 +12,7 @@ const productService = {
     async getAllProducts() {
         try {
             const response = await axios.get(`${API_BASE_URL}/products`);
+            console.log('Réponse API produits:', response.data); // Pour le débogage
             return response.data.map(product => Product.parse(product));
         } catch (error) {
             console.error("Erreur lors de la récupération de tous les produits :", error);
@@ -28,6 +28,7 @@ const productService = {
     async getProductsByCategory(categoryId) {
         try {
             const response = await axios.get(`${API_BASE_URL}/products/category/${categoryId}`);
+            console.log('Réponse API produits par catégorie:', response.data); // Pour le débogage
             return response.data.map(product => Product.parse(product));
         } catch (error) {
             console.error(`Erreur lors de la récupération des produits de la catégorie ${categoryId} :`, error);
@@ -36,13 +37,14 @@ const productService = {
     },
 
     async getProductById(productId) {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
-        return response.data;
-      } catch (error) {
-        console.error(`Erreur lors de la récupération du produit ${productId} :`, error);
-        throw error;
-      }
+        try {
+            const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
+            console.log('Réponse API produit par ID:', response.data); // Pour le débogage
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur lors de la récupération du produit ${productId} :`, error);
+            throw error;
+        }
     }
 };
 

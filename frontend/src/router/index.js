@@ -5,6 +5,8 @@ import ProductListView from '../view/ProductListView.vue'
 import CategoryListView from '../view/CategoryListView.vue'
 import HomePage from "../view/HomePageView.vue";
 import ProductDetail from "@/components/ProductDetail.vue";
+import HomeView from '../views/HomeView.vue'
+import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,7 +14,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomePage,
+      component: HomeView,
     },
     {
       path: '/selected',
@@ -38,6 +40,11 @@ const router = createRouter({
       name: 'product-detail',
       component: ProductDetail,
       props: true // Permet de passer l'ID de la route directement comme prop au composant
+    },
+    {
+      path: '/privacy-policy',
+      name: 'privacy-policy',
+      component: PrivacyPolicy
     }
     // {
     //   path: '/category/:id',

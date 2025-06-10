@@ -2,7 +2,7 @@
 import axios from 'axios';
 import Category from "@/models/Category.js";
 
-const API_BASE_URL = 'http://localhost:9494/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 const categoryService = {
     /**
