@@ -1,0 +1,56 @@
+/* Import Bootstrap */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-primary-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-primary-500 text-white hover:bg-primary-600;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300;
+  }
+  
+  .card-hover {
+    @apply hover:shadow-lg hover:-translate-y-1;
+  }
+}
+
+/* Styles personnalisés qui combinent Bootstrap et Tailwind */
+.hero-section {
+  @apply position-relative;
+}
+
+.hero-content {
+  @apply position-relative z-3;
+}
+
+/* Override Bootstrap styles avec Tailwind si nécessaire */
+.btn.btn-primary {
+  @apply bg-primary-500 border-primary-500 hover:bg-primary-600 hover:border-primary-600;
+}
+
+.navbar {
+  @apply shadow-sm;
+}
+
+/* Styles responsifs combinés */
+@media (max-width: 768px) {
+  .hero-section {
+    @apply h-50;
+  }
+} 
