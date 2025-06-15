@@ -1,40 +1,3 @@
-<script>
-export default {
-  name: "Navbar",
-
-  data() {
-    return {
-      activeTab: "produits",
-    };
-  },
-  methods: {
-    setActiveTab(tab) {
-      this.activeTab = tab;
-      if (tab === 'produits') {
-        this.$router.push('/products');
-      } else if (tab === 'categories') {
-        this.$router.push('/categories');
-      }
-      this.$emit("tab-changed", tab);
-    },
-  },
-  watch: {
-    '$route.path': {
-      immediate: true,
-      handler(newPath) {
-        if (newPath.includes('/products')) {
-          this.activeTab = 'produits';
-        } else if (newPath.includes('/categories')) {
-          this.activeTab = 'categories';
-        } else {
-          this.activeTab = 'produits';
-        }
-      }
-    }
-  }
-};
-</script>
-
 <template>
   <nav class="app-navbar">
     <div class="navbar-content">
@@ -54,42 +17,87 @@ export default {
                          :class="{ 'active-link': activeTab === 'categories' }"
                          @click="setActiveTab('categories')">Catégories</router-link>
           </li>
+          <li class="nav-item-custom">
+            <router-link to="/register"
+                         class="nav-link-custom"
+                         :class="{ 'active-link': activeTab === 'inscription' }"
+                         @click="setActiveTab('inscription')">Inscription</router-link>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
 </template>
 
+<script>
+export default {
+  name: "Navbar",
+  data() {
+    return {
+      activeTab: "produits",
+    };
+  },
+  methods: {
+    setActiveTab(tab) {
+      this.activeTab = tab;
+      if (tab === 'produits') {
+        this.$router.push('/products');
+      } else if (tab === 'categories') {
+        this.$router.push('/categories');
+      } else if (tab === 'inscription') {
+        this.$router.push('/register');
+      }
+      this.$emit("tab-changed", tab);
+    },
+  },
+  watch: {
+    '$route.path': {
+      immediate: true,
+      handler(newPath) {
+        if (newPath.includes('/products')) {
+          this.activeTab = 'produits';
+        } else if (newPath.includes('/categories')) {
+          this.activeTab = 'categories';
+        } else if (newPath.includes('/register')) {
+          this.activeTab = 'inscription';
+        } else {
+          this.activeTab = 'produits';
+        }
+      }
+    }
+  }
+};
+</script>
+
 <style scoped>
-/* Couleurs personnalisées */
 :root {
-  --navbar-bg-color: #333; /* Gris foncé élégant */
-  --navbar-text-color: #f8f8f8; /* Blanc cassé */
-  --navbar-hover-color: #42b983; /* Vert de Vue.js pour le survol */
-  --navbar-active-color: #007bff; /* Bleu vif pour le lien actif */
-  --navbar-brand-color: #fff; /* Blanc pur pour la marque */
+  --navbar-bg-color: #333;
+  --navbar-text-color: #f8f8f8;
+  --navbar-hover-color: #42b983;
+  --navbar-active-color: #007bff;
+  --navbar-brand-color: #fff;
 }
 
 .app-navbar {
   background-color: var(--navbar-bg-color);
-  padding: 1rem 2rem; /* Ajustez le padding */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Ombre douce */
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   color: var(--navbar-text-color);
 }
 
 .navbar-content {
   display: flex;
-  justify-content: flex-start; /* Espacement entre le logo et les liens */
+  justify-content: flex-start;
   align-items: center;
-  max-width: 1200px; /* Limite la largeur du contenu de la barre de navigation */
-  margin: 0 auto; /* Centre le contenu */
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .navbar-brand-custom {
   color: var(--navbar-brand-color);
-  font-size: 1.8rem; /* Taille du logo */
+  font-size: 1.8rem;
   font-weight: bold;
-  text-decoration: none; /* Pas de soulignement */
+  text-decoration: none;
   transition: color 0.3s ease;
 }
 
@@ -98,24 +106,26 @@ export default {
 }
 
 .nav-list {
-  display: flex; /* Affiche les éléments de liste en ligne */
-  list-style: none; /* Supprime les puces */
+  display: flex;
+  list-style: none;
   margin: 0;
   padding: 0;
 }
 
 .nav-item-custom {
-  margin-left: 15px; /* Espacement entre les éléments de navigation */
+  margin-left: 15px;
 }
+
 .nav-list .nav-item-custom:first-child {
   margin-left: 50px;
 }
+
 .nav-link-custom {
   color: var(--navbar-text-color);
   text-decoration: none;
   font-size: 1.1rem;
-  padding: 8px 0; /* Padding vertical pour le lien */
-  position: relative; /* Pour l'effet de soulignement */
+  padding: 8px 0;
+  position: relative;
   transition: color 0.3s ease;
 }
 
@@ -123,7 +133,6 @@ export default {
   color: var(--navbar-hover-color);
 }
 
-/* Effet de soulignement moderne au survol */
 .nav-link-custom::after {
   content: '';
   position: absolute;
@@ -139,18 +148,16 @@ export default {
   width: 100%;
 }
 
-/* Style du lien actif */
 .nav-link-custom.active-link {
-  color: var(--navbar-active-color); /* Couleur différente pour le lien actif */
+  color: var(--navbar-active-color);
   font-weight: bold;
 }
 
 .nav-link-custom.active-link::after {
-  width: 100%; /* Le lien actif est souligné en permanence */
+  width: 100%;
   background-color: var(--navbar-active-color);
 }
 
-/* Media queries pour la responsivité (menu hamburger) */
 @media (max-width: 768px) {
   .navbar-content {
     flex-direction: column;
