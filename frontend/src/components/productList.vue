@@ -1,11 +1,19 @@
 <template>
   <div class="product-list-container">
     <h2 :class="{ 'text-center': isTitleCenter }">{{ title }}</h2>
-    <div v-if="products.length === 0 && !isLoading" class="no-products-message">
+    <div v-if="error" class="error-message">
+      <i class="error-icon">⚠️</i>
+      {{ error }}
+      <button @click="retryFetch" class="retry-button">Réessayer</button>
+    </div>
+
+    <div v-else-if="products.length === 0 && !isLoading" class="no-products-message">
+      <i class="info-icon">ℹ️</i>
       Aucun produit n'est associé à cette catégorie pour le moment.
     </div>
 
     <div v-if="isLoading" class="loading-message">
+      <div class="spinner"></div>
       Chargement des produits...
     </div>
 
@@ -73,22 +81,36 @@ export default {
       this.isLoading = true;
       this.error = null;
       try {
+        let products;
         if (categoryId) {
-          this.products = await productService.getProductsByCategory(categoryId);
+          products = await productService.getProductsByCategory(categoryId);
         } else {
-          this.products = await productService.getAllProducts();
+          products = await productService.getAllProducts();
         }
-        for (const product of this.products) {
-          const query = product.nom || product.categoryNom || product.marque || 'product';
-          // Vérifier le cache avant de faire une requête
-          if (!this.unsplashImageCache.has(query)) {
-            const imageUrl = await unsplashService.searchImage(query);
-            this.unsplashImageCache.set(query, imageUrl);
+        
+        // S'assurer que products est toujours un tableau
+        this.products = Array.isArray(products) ? products : [];
+        
+        // Charger les images seulement s'il y a des produits
+        if (this.products.length > 0) {
+          for (const product of this.products) {
+            const query = product.nom || product.categoryNom || product.marque || 'product';
+            // Vérifier le cache avant de faire une requête
+            if (!this.unsplashImageCache.has(query)) {
+              try {
+                const imageUrl = await unsplashService.searchImage(query);
+                this.unsplashImageCache.set(query, imageUrl);
+              } catch (imageError) {
+                console.warn(`Impossible de charger l'image pour "${query}":`, imageError);
+                // Utiliser une image par défaut en cas d'erreur
+                this.unsplashImageCache.set(query, 'https://via.placeholder.com/150?text=Produit');
+              }
+            }
           }
         }
       } catch (err) {
         this.error = "Impossible de charger les produits. Veuillez réessayer plus tard.";
-        console.error(err);
+        console.error('Erreur lors du chargement des produits:', err);
         this.products = [];
       } finally {
         this.isLoading = false;
@@ -103,7 +125,10 @@ export default {
     getProductImageUrl(product) {
       const query = product.nom || product.categoryNom || product.marque || 'product';
       return this.unsplashImageCache.get(query) || 'https://via.placeholder.com/150?text=Produit';
-
+    },
+    
+    retryFetch() {
+      this.fetchProducts(this.categoryId);
     }
   }
 };
@@ -129,6 +154,59 @@ h2 {
   color: #777;
   font-style: italic;
   margin-top: 50px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-message {
+  text-align: center;
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.error-icon, .info-icon {
+  font-size: 1.5rem;
+}
+
+.retry-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.retry-button:hover {
+  background-color: #c82333;
+}
+
+/* Spinner pour le chargement */
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #42b983;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .product-grid {

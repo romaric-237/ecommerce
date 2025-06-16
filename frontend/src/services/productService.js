@@ -1,8 +1,8 @@
 // src/services/productService.js
-import axios from 'axios';
+import {EcommerceApi} from './http-common.js';
 import Product from "@/models/Product.js";
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:9999/api';
 
 const productService = {
     /**
@@ -11,12 +11,20 @@ const productService = {
      */
     async getAllProducts() {
         try {
-            const response = await axios.get(`${API_BASE_URL}/products`);
-            console.log('Réponse API produits:', response.data); // Pour le débogage
+            const response = await EcommerceApi.get('/products');
+            console.log('Réponse API produits:', response.data, 'Status:', response.status); // Pour le débogage
+            
+            // Gérer le cas où il n'y a pas de contenu (status 204) ou data est null/undefined
+            if (!response.data || !Array.isArray(response.data)) {
+                console.log('Aucun produit trouvé ou réponse vide');
+                return [];
+            }
+            
             return response.data.map(product => Product.parse(product));
         } catch (error) {
             console.error("Erreur lors de la récupération de tous les produits :", error);
-            throw error;
+            // En cas d'erreur, retourner un tableau vide plutôt que de propager l'erreur
+            return [];
         }
     },
 
@@ -27,22 +35,43 @@ const productService = {
      */
     async getProductsByCategory(categoryId) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/products/category/${categoryId}`);
-            console.log('Réponse API produits par catégorie:', response.data); // Pour le débogage
+            const response = await EcommerceApi.get(`/products/category/${categoryId}`);
+            console.log('Réponse API produits par catégorie:', response.data, 'Status:', response.status); // Pour le débogage
+            
+            // Gérer le cas où il n'y a pas de contenu (status 204) ou data est null/undefined
+            if (!response.data || !Array.isArray(response.data)) {
+                console.log(`Aucun produit trouvé pour la catégorie ${categoryId}`);
+                return [];
+            }
+            
             return response.data.map(product => Product.parse(product));
         } catch (error) {
             console.error(`Erreur lors de la récupération des produits de la catégorie ${categoryId} :`, error);
-            throw error;
+            // En cas d'erreur, retourner un tableau vide plutôt que de propager l'erreur
+            return [];
         }
     },
 
     async getProductById(productId) {
         try {
-            const response = await axios.get(`${API_BASE_URL}/products/${productId}`);
-            console.log('Réponse API produit par ID:', response.data); // Pour le débogage
-            return response.data;
+            const response = await EcommerceApi.get(`/products/${productId}`);
+            console.log('Réponse API produit par ID:', response.data, 'Status:', response.status); // Pour le débogage
+            
+            // Gérer le cas où le produit n'existe pas
+            if (!response.data) {
+                console.log(`Produit ${productId} non trouvé`);
+                return null;
+            }
+            
+            return Product.parse(response.data);
         } catch (error) {
             console.error(`Erreur lors de la récupération du produit ${productId} :`, error);
+            
+            // Si c'est une erreur 404, retourner null au lieu de propager l'erreur
+            if (error.response?.status === 404) {
+                return null;
+            }
+            
             throw error;
         }
     }

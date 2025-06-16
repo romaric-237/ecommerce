@@ -1,196 +1,150 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-    <div class="sm:mx-auto sm:w-full sm:max-w-md">
-      <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-        Connexion à votre compte
-      </h2>
-    </div>
-
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-        <form class="space-y-6" @submit.prevent="handleSubmit">
-          <!-- Message d'erreur -->
-          <div v-if="error" class="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-red-700">{{ error }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Email -->
-          <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">
-              Adresse email
-            </label>
-            <div class="mt-1">
-              <input
-                id="email"
-                v-model="form.email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                required
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="exemple@email.com"
-              />
-            </div>
-          </div>
-
-          <!-- Mot de passe -->
-          <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">
-              Mot de passe
-            </label>
-            <div class="mt-1 relative">
-              <input
-                id="password"
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
-                name="password"
-                autocomplete="current-password"
-                required
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="••••••••"
-              />
-              <button
-                type="button"
-                class="absolute inset-y-0 right-0 pr-3 flex items-center"
-                @click="togglePasswordVisibility"
-              >
-                <svg
-                  v-if="!showPassword"
-                  class="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-                <svg
-                  v-else
-                  class="h-5 w-5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Bouton de connexion -->
-          <div>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <svg
-                v-if="loading"
-                class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
-              </svg>
-              {{ loading ? 'Connexion en cours...' : 'Se connecter' }}
-            </button>
-          </div>
-
-          <!-- Lien d'inscription -->
-          <div class="text-sm text-center">
-            <router-link
-              to="/register"
-              class="font-medium text-blue-600 hover:text-blue-500"
-            >
-              Pas encore de compte ? S'inscrire
-            </router-link>
-          </div>
-        </form>
-      </div>
+  <div class="auth-container">
+    <div class="auth-card">
+      <h2>Connexion</h2>
+      <form @submit.prevent="handleLogin" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            v-model="email" 
+            :class="{ 'error': errors.email, 'valid': email && !errors.email }"
+            @blur="validateEmail"
+            @input="clearError('email')"
+            placeholder="Votre email"
+          >
+          <span v-if="errors.email" class="field-error">{{ errors.email }}</span>
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input 
+            type="password" 
+            id="password" 
+            v-model="password" 
+            :class="{ 'error': errors.password, 'valid': password && !errors.password }"
+            @blur="validatePassword"
+            @input="clearError('password')"
+            placeholder="Votre mot de passe"
+          >
+          <span v-if="errors.password" class="field-error">{{ errors.password }}</span>
+        </div>
+        <div v-if="generalError" class="error-message">
+          <i class="error-icon">⚠️</i>
+          {{ generalError }}
+        </div>
+        <div v-if="successMessage" class="success-message">
+          <i class="success-icon">✅</i>
+          {{ successMessage }}
+        </div>
+        <button 
+          type="submit" 
+          class="auth-button" 
+          :disabled="loading || !isFormValid"
+          :class="{ 'loading': loading }"
+        >
+          <span v-if="loading" class="spinner"></span>
+          {{ loading ? 'Connexion...' : 'Se connecter' }}
+        </button>
+        <p class="auth-switch">
+          Pas encore de compte ? 
+          <router-link to="/register" class="switch-link">S'inscrire</router-link>
+        </p>
+      </form>
     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import authService from '@/services/authService';
 
 export default {
   name: 'Login',
   data() {
     return {
-      form: {
-        email: '',
-        password: ''
-      },
-      loading: false,
-      error: null,
-      showPassword: false
+      email: '',
+      password: '',
+      errors: {},
+      generalError: '',
+      successMessage: '',
+      loading: false
     };
   },
+  computed: {
+    isFormValid() {
+      return this.email.trim() && 
+             this.password && 
+             Object.keys(this.errors).length === 0;
+    }
+  },
   methods: {
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword;
-    },
-    async handleSubmit() {
-      this.loading = true;
-      this.error = null;
+    validateEmail() {
+      const emailRegex = /^[A-Za-z0-9+_.-]+@([A-Za-z0-9.-]+\.[A-Za-z]{2,})$/;
       
+      if (!this.email.trim()) {
+        this.errors.email = 'L\'email est requis';
+      } else if (!emailRegex.test(this.email.trim())) {
+        this.errors.email = 'Format d\'email invalide';
+      } else {
+        delete this.errors.email;
+      }
+    },
+    
+    validatePassword() {
+      if (!this.password) {
+        this.errors.password = 'Le mot de passe est requis';
+      } else if (this.password.length < 6) {
+        this.errors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+      } else {
+        delete this.errors.password;
+      }
+    },
+    
+    clearError(field) {
+      delete this.errors[field];
+      this.generalError = '';
+    },
+    
+    async handleLogin() {
+      // Valider tous les champs avant soumission
+      this.validateEmail();
+      this.validatePassword();
+      
+      if (Object.keys(this.errors).length > 0) {
+        this.generalError = 'Veuillez corriger les erreurs avant de continuer';
+        return;
+      }
+
+      this.loading = true;
+      this.generalError = '';
+      this.successMessage = '';
+
       try {
-        const response = await axios.post('http://localhost:8080/api/auth/login', {
-          email: this.form.email,
-          password: this.form.password
-        });
+        await authService.login(this.email.trim(), this.password);
+        this.successMessage = 'Connexion réussie ! Redirection...';
         
-        // Stocker le token
-        localStorage.setItem('token', response.data.token);
+        // Émettre un événement pour notifier la navbar
+        window.dispatchEvent(new CustomEvent('user-authenticated'));
         
-        // Stocker les informations de l'utilisateur
-        localStorage.setItem('user', JSON.stringify({
-          email: this.form.email,
-          id: response.data.userId
-        }));
+        // Petit délai pour montrer le message de succès
+        setTimeout(() => {
+          this.$router.push('/');
+        }, 1000);
+      } catch (err) {
+        console.error('Erreur de connexion:', err);
         
-        // Rediriger vers la page des produits
-        this.$router.push('/products');
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Une erreur est survenue lors de la connexion';
+        // Gestion spécifique des erreurs
+        if (err.response?.status === 401) {
+          this.generalError = 'Email ou mot de passe incorrect';
+        } else if (err.response?.status === 429) {
+          this.generalError = 'Trop de tentatives. Veuillez réessayer plus tard';
+        } else if (err.response?.data?.message) {
+          this.generalError = err.response.data.message;
+        } else if (err.message) {
+          this.generalError = err.message;
+        } else {
+          this.generalError = 'Erreur de connexion. Veuillez réessayer';
+        }
       } finally {
         this.loading = false;
       }
@@ -200,16 +154,166 @@ export default {
 </script>
 
 <style scoped>
-.animate-spin {
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 64px);
+  background-color: #f5f5f5;
+  padding: 20px;
+}
+
+.auth-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-card h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #42b983;
+}
+
+/* Styles pour la validation des champs */
+.form-group input.error {
+  border-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.form-group input.valid {
+  border-color: #28a745;
+  background-color: #f8fff9;
+}
+
+.field-error {
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.auth-button {
+  background-color: #42b983;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.auth-button:hover:not(:disabled) {
+  background-color: #3aa876;
+}
+
+.auth-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.auth-button.loading {
+  background-color: #3aa876;
+}
+
+/* Spinner pour le bouton de chargement */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff30;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.success-message {
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.error-icon, .success-icon {
+  font-size: 1.1rem;
+}
+
+.auth-switch {
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+}
+
+.switch-link {
+  color: #42b983;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.switch-link:hover {
+  text-decoration: underline;
 }
 </style> 

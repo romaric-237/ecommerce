@@ -1,11 +1,33 @@
 <script>
+import authService from '@/services/authService';
+import { TokenUtils } from '@/services/http-common';
+
 export default {
   name: "Navbar",
 
   data() {
     return {
       activeTab: "produits",
+      isAuthenticated: false,
+      user: null,
+      isUserMenuOpen: false
     };
+  },
+  created() {
+    // Vérifier si l'utilisateur est connecté au chargement du composant
+    this.checkAuth();
+    // Fermer le menu si on clique en dehors
+    document.addEventListener('click', this.handleClickOutside);
+  },
+  mounted() {
+    // Écouter les événements d'authentification
+    window.addEventListener('user-authenticated', this.onUserAuthenticated);
+    window.addEventListener('user-logged-out', this.onUserLoggedOut);
+  },
+  beforeUnmount() {
+    document.removeEventListener('click', this.handleClickOutside);
+    window.removeEventListener('user-authenticated', this.onUserAuthenticated);
+    window.removeEventListener('user-logged-out', this.onUserLoggedOut);
   },
   methods: {
     setActiveTab(tab) {
@@ -17,6 +39,72 @@ export default {
       }
       this.$emit("tab-changed", tab);
     },
+    checkAuth() {
+      // Utiliser authService au lieu de localStorage direct
+      this.isAuthenticated = authService.isAuthenticated();
+      if (this.isAuthenticated) {
+        this.user = authService.getCurrentUser();
+      }
+    },
+    async logout() {
+      try {
+        await authService.logout();
+        // authService.logout() redirige déjà vers /login
+      } catch (error) {
+        console.error('Erreur lors de la déconnexion:', error);
+        // Forcer la déconnexion locale en cas d'erreur
+        TokenUtils.clearTokens();
+        this.isAuthenticated = false;
+        this.user = null;
+        this.isUserMenuOpen = false;
+        this.$router.push('/login');
+      }
+    },
+    toggleUserMenu(event) {
+      event.stopPropagation();
+      this.isUserMenuOpen = !this.isUserMenuOpen;
+    },
+    handleClickOutside(event) {
+      if (!event.target.closest('.user-menu')) {
+        this.isUserMenuOpen = false;
+      }
+    },
+    getAvatarInitials(user) {
+      if (!user) return '?';
+      
+      const prenom = user.prenom || '';
+      const nom = user.nom || '';
+      
+      const firstInitial = prenom.charAt(0).toUpperCase();
+      const lastInitial = nom.charAt(0).toUpperCase();
+      
+      return `${firstInitial}${lastInitial}` || user.email?.charAt(0).toUpperCase() || '?';
+    },
+    getUserDisplayName(user) {
+      if (!user) return 'Utilisateur';
+      
+      if (user.prenom && user.nom) {
+        return `${user.prenom} ${user.nom}`;
+      } else if (user.prenom) {
+        return user.prenom;
+      } else if (user.nom) {
+        return user.nom;
+      } else if (user.email) {
+        return user.email.split('@')[0];
+      }
+      
+      return 'Utilisateur';
+    },
+    onUserAuthenticated() {
+      // Mettre à jour l'état d'authentification quand un utilisateur se connecte
+      this.checkAuth();
+    },
+    onUserLoggedOut() {
+      // Mettre à jour l'état quand un utilisateur se déconnecte
+      this.isAuthenticated = false;
+      this.user = null;
+      this.isUserMenuOpen = false;
+    }
   },
   watch: {
     '$route.path': {
@@ -36,144 +124,414 @@ export default {
 </script>
 
 <template>
-  <nav class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16">
-        <div class="flex">
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center">
-            <router-link to="/" class="text-xl font-bold text-indigo-600">
-              E-Commerce
-            </router-link>
-          </div>
+  <nav class="app-navbar">
+    <div class="navbar-content">
+      <router-link to="/" class="navbar-brand-custom">Ecommerce</router-link>
 
-          <!-- Navigation Links -->
-          <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-            <router-link
-              to="/"
-              class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-            >
-              Accueil
-            </router-link>
+      <div class="navbar-links">
+        <ul class="nav-list">
+          <li class="nav-item-custom">
             <router-link to="/products"
                          class="nav-link-custom"
                          :class="{ 'active-link': activeTab === 'produits' }"
-                         @click="setActiveTab('produits')">Produits</router-link>
+                         @click="setActiveTab('produits')">Produits
+            </router-link>
+          </li>
+          <li class="nav-item-custom">
             <router-link to="/categories"
                          class="nav-link-custom"
                          :class="{ 'active-link': activeTab === 'categories' }"
-                         @click="setActiveTab('categories')">Catégories</router-link>
-          </div>
-        </div>
-
-        <!-- Right side -->
-        <div class="hidden sm:ml-6 sm:flex sm:items-center">
-          <router-link
-            to="/register"
-            class="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
-          >
-            S'inscrire
-          </router-link>
-          <router-link
-            to="/login"
-            class="ml-4 text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
-          >
-            Se connecter
-          </router-link>
-        </div>
+                         @click="setActiveTab('categories')">Catégories
+            </router-link>
+          </li>
+        </ul>
       </div>
+      <div class="navbar-auth">
+        <template v-if="isAuthenticated">
+          <div class="user-menu">
+            <button class="user-menu-button" @click="toggleUserMenu">
+              <div class="user-avatar-container">
+                <div class="user-avatar-circle">
+                  {{ getAvatarInitials(user) }}
+                </div>
+              </div>
+              <span class="user-name">{{ getUserDisplayName(user) }}</span>
+              <div class="chevron-icon" :class="{ 'rotate': isUserMenuOpen }">
+                <svg width="12" height="8" viewBox="0 0 12 8" fill="currentColor">
+                  <path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </button>
+            <div class="user-dropdown" v-if="isUserMenuOpen">
+              <router-link to="/profile" class="dropdown-item" @click="isUserMenuOpen = false">
+                <span class="dropdown-icon">👤</span>
+                Mon Profil
+              </router-link>
+              <router-link to="/orders" class="dropdown-item" @click="isUserMenuOpen = false">
+                <span class="dropdown-icon">🛍️</span>
+                Mes Commandes
+              </router-link>
+              <div class="dropdown-divider"></div>
+              <button @click="logout" class="dropdown-item logout">
+                <span class="dropdown-icon">🚪</span>
+                Déconnexion
+              </button>
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <ul class="nav-list">
+            <li class="nav-item-custom" v-if="!$route.path.includes('/login')">
+              <router-link to="/login" class="nav-link-custom"
+                         :class="{ 'active-link': activeTab === 'login' }"
+              >Connexion</router-link>
+            </li>
+            <li class="nav-item-custom" v-if="!$route.path.includes('/register')">
+              <router-link to="/register" class="nav-link-custom register-link"
+                         :class="{ 'active-link': activeTab === 'register' }">Inscription</router-link>
+            </li>
+          </ul>
+        </template>
+      </div>
+      
+
     </div>
   </nav>
 </template>
 
 <style scoped>
-/* Couleurs personnalisées */
+/* Variables CSS ultra-modernes */
 :root {
-  --navbar-bg-color: #333; /* Gris foncé élégant */
-  --navbar-text-color: #f8f8f8; /* Blanc cassé */
-  --navbar-hover-color: #42b983; /* Vert de Vue.js pour le survol */
-  --navbar-active-color: #007bff; /* Bleu vif pour le lien actif */
-  --navbar-brand-color: #fff; /* Blanc pur pour la marque */
+  /* Palette principale */
+  --navbar-primary: #B85E5E26;
+  --navbar-secondary: #8FAF1326;
+  --navbar-tertiary: #2797B126;
+  
+  /* Accents et highlights */
+  --navbar-accent: #00d4aa;
+  --navbar-accent-hover: #00b894;
+  --navbar-accent-glow: rgba(0, 212, 170, 0.3);
+  
+  /* Texte et contenu */
+  --navbar-text: #1c0c0c;
+  --navbar-text-secondary: #e2e8f0;
+  --navbar-text-muted: #a0aec0;
+  --navbar-text-disabled: #718096;
+  
+  /* Glassmorphism */
+  --navbar-glass: rgba(255, 255, 255, 0.08);
+  --navbar-glass-border: rgba(207, 124, 124, 0.12);
+  --navbar-glass-hover: rgba(255, 255, 255, 0.15);
+  
+  /* Shadows premium */
+  --navbar-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --navbar-shadow-md: 0 8px 32px rgba(0, 0, 0, 0.18);
+  --navbar-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.25);
+  --navbar-shadow-glow: 0 0 20px var(--navbar-accent-glow);
+  
+  /* Borders et separateurs */
+  --navbar-border: rgba(255, 255, 255, 0.1);
+  --navbar-border-hover: rgba(255, 255, 255, 0.2);
+  
+  /* Transitions premium */
+  --navbar-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --navbar-transition-medium: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --navbar-transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  --navbar-transition-bounce: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .app-navbar {
-  background-color: var(--navbar-bg-color);
-  padding: 1rem 2rem; /* Ajustez le padding */
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Ombre douce */
-  color: var(--navbar-text-color);
+  /* Glassmorphism background moderne */
+  background: linear-gradient(135deg,
+  rgba(184, 94, 94, 0.15) 30%,
+  rgba(143, 175, 19, 0.15) 50%,
+  rgba(39, 151, 177, 0.15) 100%);
+  
+  /* Effet verre premium */
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+
+  /* Borders et shadows */
+  border-bottom: 1px solid var(--navbar-glass-border);
+  box-shadow: var(--navbar-shadow-md);
+  
+  /* Layout et positionnement */
+  padding: 1rem 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  
+  /* Transitions fluides */
+  transition: all var(--navbar-transition-medium);
+  
+  /* Optimisation performance */
+  will-change: box-shadow, backdrop-filter;
+  transform: translateZ(0);
+}
+
+.app-navbar:hover {
+  box-shadow: var(--navbar-shadow-lg);
+  backdrop-filter: blur(25px) saturate(200%);
+  border-bottom-color: var(--navbar-border-hover);
+}
+
+/* Animation d'apparition */
+.app-navbar {
+  animation: slideDown 0.6s var(--navbar-transition-medium) both;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .navbar-content {
   display: flex;
-  justify-content: flex-start; /* Espacement entre le logo et les liens */
+  justify-content: space-between;
   align-items: center;
-  max-width: 1200px; /* Limite la largeur du contenu de la barre de navigation */
-  margin: 0 auto; /* Centre le contenu */
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
 }
 
+/* Logo avec gradient ultra-moderne */
 .navbar-brand-custom {
-  color: var(--navbar-brand-color);
-  font-size: 1.8rem; /* Taille du logo */
-  font-weight: bold;
-  text-decoration: none; /* Pas de soulignement */
-  transition: color 0.3s ease;
+  font-size: 2.2rem;
+  font-weight: 900;
+  text-decoration: none;
+  letter-spacing: -0.02em;
+  position: relative;
+  overflow: hidden;
+  
+  /* Fallback color pour assurer la visibilité */
+  color: var(--navbar-text);
+  
+  /* Gradient texte animé avec fallback */
+  background: linear-gradient(
+    135deg,
+    var(--navbar-accent) 0%,
+    #64d3a8 25%,
+    #4ade80 50%,
+    var(--navbar-accent) 75%,
+    #00f5d4 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+
+  background-clip: text;
+  
+  /* Animation du gradient -webkit-text-fill-color: transparent;*/
+  animation: gradientShift 4s ease-in-out infinite;
+  
+  /* Transitions fluides */
+  transition: all var(--navbar-transition-medium);
+  
+  /* Effet de profondeur */
+  filter: drop-shadow(0 2px 4px rgba(0, 212, 170, 0.2));
+  
+  /* Support des navigateurs qui ne supportent pas background-clip: text */
+  @supports not (-webkit-background-clip: text) {
+    color: var(--navbar-accent);
+    background: none;
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .navbar-brand-custom:hover {
-  color: var(--navbar-hover-color);
+  transform: translateY(-2px) scale(1.02);
+  filter: drop-shadow(0 4px 8px rgba(0, 212, 170, 0.3));
+  animation-duration: 4s;
+}
+
+/* Effet brillant au survol */
+.navbar-brand-custom::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+.navbar-brand-custom:hover::after {
+  left: 100%;
+}
+
+/* Navigation moderne avec glassmorphism */
+.navbar-links {
+  background: var(--navbar-glass);
+  border-radius: 12px;
+  padding: 0.5rem 2rem;
+  border: 1px solid var(--navbar-glass-border);
 }
 
 .nav-list {
-  display: flex; /* Affiche les éléments de liste en ligne */
-  list-style: none; /* Supprime les puces */
+  display: flex;
+  list-style: none;
   margin: 0;
   padding: 0;
+  gap: 1rem;
+  align-items: center;
 }
 
 .nav-item-custom {
-  margin-left: 15px; /* Espacement entre les éléments de navigation */
+  position: relative;
 }
-.nav-list .nav-item-custom:first-child {
-  margin-left: 50px;
-}
+
+/* Liens navigation ultra-modernes */
 .nav-link-custom {
-  color: var(--navbar-text-color);
+  color: var(--navbar-text-secondary);
   text-decoration: none;
-  font-size: 1.1rem;
-  padding: 8px 0; /* Padding vertical pour le lien */
-  position: relative; /* Pour l'effet de soulignement */
-  transition: color 0.3s ease;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: all var(--navbar-transition-medium);
+  display: block;
+  
+  /* Effet glassmorphism au repos */
+  background: transparent;
+  border: 1px solid transparent;
 }
 
 .nav-link-custom:hover {
-  color: var(--navbar-hover-color);
+  color: var(--navbar-text);
+  background: var(--navbar-glass-hover);
+  border-color: var(--navbar-glass-border);
+  transform: translateY(-2px);
+  box-shadow: var(--navbar-shadow-sm);
 }
 
-/* Effet de soulignement moderne au survol */
+/* Underline animé premium */
+.nav-link-custom::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--navbar-accent),
+    #4ade80,
+    var(--navbar-accent)
+  );
+  transition: all var(--navbar-transition-bounce);
+  transform: translateX(-50%);
+  border-radius: 1px;
+}
+
+.nav-link-custom:hover::before {
+  width: 80%;
+}
+
+/* Effet de shimmer au survol */
 .nav-link-custom::after {
   content: '';
   position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: var(--navbar-hover-color);
-  transition: width 0.3s ease;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
 }
 
 .nav-link-custom:hover::after {
-  width: 100%;
+  left: 100%;
 }
 
-/* Style du lien actif */
+/* État actif premium */
 .nav-link-custom.active-link {
-  color: var(--navbar-active-color); /* Couleur différente pour le lien actif */
-  font-weight: bold;
+  color: var(--navbar-text);
+  background: linear-gradient(
+    135deg,
+    var(--navbar-accent),
+    var(--navbar-accent-hover)
+  );
+  border-color: var(--navbar-accent);
+  box-shadow: var(--navbar-shadow-glow);
+  font-weight: 600;
 }
 
-.nav-link-custom.active-link::after {
-  width: 100%; /* Le lien actif est souligné en permanence */
-  background-color: var(--navbar-active-color);
+.nav-link-custom.active-link::before {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  height: 1px;
+  bottom: 2px;
+}
+
+.nav-link-custom.active-link:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 0 25px var(--navbar-accent-glow);
+}
+
+.navbar-auth {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.welcome-message {
+  color: var(--navbar-text-color);
+  font-size: 0.9rem;
+}
+
+.auth-button {
+  background-color: transparent;
+  color: var(--navbar-text-color);
+  border: 1px solid var(--navbar-text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: var(--navbar-text-color);
+  color: var(--navbar-bg-color);
+}
+
+.register-link {
+  background-color: var(--navbar-hover-color);
+  padding: 8px 16px !important;
+  border-radius: 4px;
+  margin-left: 10px;
+}
+
+.register-link:hover {
+  background-color: #3aa876;
+  color: white !important;
 }
 
 /* Media queries pour la responsivité (menu hamburger) */
@@ -216,6 +574,325 @@ export default {
   .nav-link-custom.active-link {
     background-color: var(--navbar-active-color);
     color: white;
+  }
+
+  .navbar-auth {
+    margin-left: 0;
+    width: 100%;
+    margin-top: 15px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .welcome-message {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .auth-button {
+    width: 100%;
+  }
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: var(--navbar-text-color);
+}
+
+/* User menu premium */
+.user-menu {
+  position: relative;
+}
+
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--navbar-glass);
+  border: 1px solid var(--navbar-glass-border);
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  color: var(--navbar-text);
+  transition: all var(--navbar-transition-medium);
+  backdrop-filter: blur(10px);
+}
+
+.user-menu-button:hover {
+  background: var(--navbar-glass-hover);
+  border-color: var(--navbar-border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--navbar-shadow-sm);
+}
+
+/* Avatar 3D premium */
+.user-avatar-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--navbar-accent),
+    var(--navbar-accent-hover),
+    #4ade80
+  );
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  /* Amélioration du contraste du texte */
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 4px rgba(0, 0, 0, 0.3);
+  
+  /* Effet 3D premium */
+  box-shadow: 
+    0 4px 8px rgba(0, 212, 170, 0.2),
+    0 0 0 2px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  transition: all var(--navbar-transition-medium);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Effet de brillance sur l'avatar */
+.user-avatar-circle::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transform: rotate(45deg);
+  transition: transform 0.6s ease;
+}
+
+.user-menu-button:hover .user-avatar-circle {
+  transform: scale(1.08) rotate(2deg);
+  box-shadow: 
+    0 6px 16px rgba(0, 212, 170, 0.3),
+    0 0 0 3px rgba(255, 255, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.user-menu-button:hover .user-avatar-circle::before {
+  transform: rotate(45deg) translate(100%, 100%);
+}
+
+.user-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navbar-text);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+/* Icône chevron personnalisée */
+.chevron-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  opacity: 0.7;
+}
+
+.chevron-icon.rotate {
+  transform: rotate(180deg);
+}
+
+.chevron-icon:hover {
+  opacity: 1;
+}
+
+/* Menu dropdown glassmorphism premium */
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 240px;
+  z-index: 1001;
+  
+  /* Glassmorphism background */
+  background: linear-gradient(
+    135deg,
+    rgba(184, 94, 94, 0.15) 30%,
+    rgba(143, 175, 19, 0.15) 50%,
+    rgba(39, 151, 177, 0.15) 100%);
+
+  backdrop-filter: blur(20px) saturate(200%);
+  -webkit-backdrop-filter: blur(20px) saturate(200%);
+  
+  /* Borders et shadows premium */
+  border: 1px solid var(--navbar-glass-border);
+  border-radius: 16px;
+  box-shadow: 
+    var(--navbar-shadow-lg),
+    0 0 40px rgba(0, 212, 170, 0.1);
+  
+  /* Animation d'apparition */
+  animation: dropdownSlideIn 0.3s var(--navbar-transition-bounce) both;
+  
+  /* Padding interne */
+  padding: 0.5rem;
+  overflow: hidden;
+}
+
+@keyframes dropdownSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Items du dropdown modernes */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.125rem;
+  color: var(--navbar-text-secondary);
+  text-decoration: none;
+  border-radius: 10px;
+  border: none;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all var(--navbar-transition-medium);
+  position: relative;
+  overflow: hidden;
+}
+
+.dropdown-item:hover {
+  color: var(--navbar-text);
+  background: var(--navbar-glass-hover);
+  transform: translateX(4px);
+  box-shadow: var(--navbar-shadow-sm);
+}
+
+/* Effet shimmer sur les items */
+.dropdown-item::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transition: left 0.4s ease;
+}
+
+.dropdown-item:hover::after {
+  left: 100%;
+}
+
+/* Icons emoji modernes */
+.dropdown-icon {
+  font-size: 1.2rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--navbar-glass);
+  border: 1px solid var(--navbar-glass-border);
+  transition: all var(--navbar-transition-medium);
+}
+
+.dropdown-item:hover .dropdown-icon {
+  background: var(--navbar-accent);
+  border-color: var(--navbar-accent);
+  transform: scale(1.1) rotate(5deg);
+}
+
+/* Séparateur élégant */
+.dropdown-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--navbar-glass-border),
+    transparent
+  );
+  margin: 0.5rem 0;
+  border-radius: 0.5px;
+}
+
+/* Bouton de déconnexion spécial */
+.dropdown-item.logout {
+  color: #ff6b6b;
+  margin-top: 0.25rem;
+}
+
+.dropdown-item.logout:hover {
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff5252;
+}
+
+.dropdown-item.logout .dropdown-icon {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+.dropdown-item.logout:hover .dropdown-icon {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .user-dropdown {
+    position: static;
+    box-shadow: none;
+    margin-top: 1rem;
+  }
+
+  .user-menu-button {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>
