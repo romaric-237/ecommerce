@@ -6,22 +6,29 @@
       <div class="navbar-links">
         <ul class="nav-list">
           <li class="nav-item-custom">
-            <router-link to="/products"
-                         class="nav-link-custom"
-                         :class="{ 'active-link': activeTab === 'produits' }"
-                         @click="setActiveTab('produits')">Produits</router-link>
+            <router-link to="/products" class="nav-link-custom" :class="{ 'active-link': activeTab === 'produits' }"
+              @click="setActiveTab('produits')">Produits</router-link>
           </li>
           <li class="nav-item-custom">
-            <router-link to="/categories"
-                         class="nav-link-custom"
-                         :class="{ 'active-link': activeTab === 'categories' }"
-                         @click="setActiveTab('categories')">Catégories</router-link>
+            <router-link to="/categories" class="nav-link-custom" :class="{ 'active-link': activeTab === 'categories' }"
+              @click="setActiveTab('categories')">Catégories</router-link>
           </li>
-          <li class="nav-item-custom">
-            <router-link to="/register"
-                         class="nav-link-custom"
-                         :class="{ 'active-link': activeTab === 'inscription' }"
-                         @click="setActiveTab('inscription')">Inscription</router-link>
+
+          <li v-if="!isAuthenticated" class="nav-item-custom">
+            <router-link to="/register" class="nav-link-custom" :class="{ 'active-link': activeTab === 'inscription' }"
+              @click="setActiveTab('inscription')">Inscription</router-link>
+          </li>
+          <li v-if="!isAuthenticated" class="nav-item-custom">
+            <router-link to="/login" class="nav-link-custom" :class="{ 'active-link': activeTab === 'login' }"
+              @click="setActiveTab('login')">Connexion</router-link>
+          </li>
+
+          <li v-if="isAuthenticated" class="nav-item-custom">
+            <router-link to="/profil" class="nav-link-custom" :class="{ 'active-link': activeTab === 'profil' }"
+              @click="setActiveTab('profil')">Profil</router-link>
+          </li>
+          <li v-if="isAuthenticated" class="nav-item-custom">
+            <a class="nav-link-custom" href="#" @click.prevent="logout">Se déconnecter</a>
           </li>
         </ul>
       </div>
@@ -29,44 +36,40 @@
   </nav>
 </template>
 
-<script>
-export default {
-  name: "Navbar",
-  data() {
-    return {
-      activeTab: "produits",
-    };
-  },
-  methods: {
-    setActiveTab(tab) {
-      this.activeTab = tab;
-      if (tab === 'produits') {
-        this.$router.push('/products');
-      } else if (tab === 'categories') {
-        this.$router.push('/categories');
-      } else if (tab === 'inscription') {
-        this.$router.push('/register');
-      }
-      this.$emit("tab-changed", tab);
-    },
-  },
-  watch: {
-    '$route.path': {
-      immediate: true,
-      handler(newPath) {
-        if (newPath.includes('/products')) {
-          this.activeTab = 'produits';
-        } else if (newPath.includes('/categories')) {
-          this.activeTab = 'categories';
-        } else if (newPath.includes('/register')) {
-          this.activeTab = 'inscription';
-        } else {
-          this.activeTab = 'produits';
-        }
-      }
-    }
-  }
+<script setup>
+import { ref, computed, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import { useUserStore } from '@/stores/userStore';
+
+const router = useRouter();
+const route = useRoute();
+const userStore = useUserStore();
+
+const activeTab = ref('produits');
+const isAuthenticated = computed(() => userStore.token !== null);
+
+const setActiveTab = (tab) => {
+  activeTab.value = tab;
 };
+
+const logout = () => {
+  userStore.logout();
+  router.push('/login');
+};
+
+// Synchroniser avec l'URL
+watch(
+  () => route.path,
+  (newPath) => {
+    if (newPath.includes('/products')) activeTab.value = 'produits';
+    else if (newPath.includes('/categories')) activeTab.value = 'categories';
+    else if (newPath.includes('/register')) activeTab.value = 'inscription';
+    else if (newPath.includes('/login')) activeTab.value = 'login';
+    else if (newPath.includes('/profil')) activeTab.value = 'profil';
+    else activeTab.value = '';
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>
