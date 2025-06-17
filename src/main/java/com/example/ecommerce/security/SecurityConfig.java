@@ -85,7 +85,8 @@ public class SecurityConfig {
                 auth
                     // Points de terminaison publics
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/products/**").permitAll()
+                        .requestMatchers("/api/categories/**").permitAll()
                     .requestMatchers("/actuator/health").permitAll()
                     // Tous les autres points de terminaison nécessitent une authentification
                     .anyRequest().authenticated();

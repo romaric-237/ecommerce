@@ -35,12 +35,42 @@ public class AuthController {
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             log.warn("Tentative d'enregistrement avec données invalides : {}", e.getMessage());
+            
+            // Vérifier si c'est une erreur d'email déjà utilisé
+            if (e.getMessage().toLowerCase().contains("email")) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of(
+                        "success", false,
+                        "error", "Email déjà utilisé",
+                        "message", "l'adresse email est deja utilisée",
+                        "field", "email"
+                    ));
+            }
+            
+            // Pour les autres erreurs de validation
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Données invalides", "message", e.getMessage()));
+                .body(Map.of(
+                    "success", false,
+                    "error", "Erreur de validation",
+                    "message", e.getMessage(),
+                    "field", "general"
+                ));
+        } catch (RuntimeException e) {
+            log.error("Erreur lors de l'enregistrement : {}", e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(Map.of(
+                        "success", false,
+                        "error", "Erreur d'enregistrement",
+                        "message", e.getMessage()
+                    ));
         } catch (Exception e) {
             log.error("Erreur lors de l'enregistrement : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur serveur", "message", "Erreur lors de la création du compte"));
+                    .body(Map.of(
+                        "success", false,
+                        "error", "Erreur serveur",
+                        "message", "Une erreur est survenue lors de la création du compte"
+                    ));
         }
     }
 
@@ -58,11 +88,19 @@ public class AuthController {
             log.warn("Tentative de connexion échouée pour {} depuis {}", 
                     request.getEmail(), httpRequest.getRemoteAddr());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Authentification échouée", "message", "Identifiants invalides"));
+                    .body(Map.of(
+                        "success", false,
+                        "error", "Authentification échouée",
+                        "message", "Identifiants invalides"
+                    ));
         } catch (Exception e) {
             log.error("Erreur lors de la connexion : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur serveur", "message", "Erreur lors de la connexion"));
+                    .body(Map.of(
+                        "success", false,
+                        "error", "Erreur serveur",
+                        "message", "Une erreur est survenue lors de la connexion"
+                    ));
         }
     }
 

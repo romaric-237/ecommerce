@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as Qs from 'qs';
 
 // Configuration de base pour l'API
-const API_BASE_URL =  'http://localhost:9999';
+const API_BASE_URL =  'http://localhost:8080';
 
 // Clés pour le stockage des tokens
 const TOKEN_KEY = 'accessToken';

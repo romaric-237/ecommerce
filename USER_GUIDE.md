@@ -7,6 +7,10 @@
 4. [Consultation des catégories](#consultation-des-catégories)
 5. [Détails des produits](#détails-des-produits)
 6. [FAQ](#faq)
+7. [Créer un compte](#créer-un-compte)
+8. [Se connecter](#se-connecter)
+9. [Modifier son profil](#modifier-son-profil)
+10. [Gestion des erreurs](#gestion-des-erreurs)
 
 ## Introduction
 
@@ -133,4 +137,30 @@ Si vous rencontrez des problèmes ou avez des questions :
 
 ## Mise à jour
 
-Ce guide est régulièrement mis à jour pour refléter les nouvelles fonctionnalités et améliorations de l'application. 
+Ce guide est régulièrement mis à jour pour refléter les nouvelles fonctionnalités et améliorations de l'application.
+
+## Créer un compte
+
+1. Cliquez sur « S'inscrire » dans la barre de navigation.
+2. Remplissez tous les champs obligatoires (nom, prénom, email, adresse, code postal, ville, mot de passe).
+3. Validez le formulaire. Si l'email est déjà utilisé, un message d'erreur explicite s'affiche.
+4. Après inscription, vous êtes automatiquement connecté et redirigé vers la page des produits.
+
+## Se connecter
+
+1. Cliquez sur « Se connecter » dans la barre de navigation.
+2. Saisissez votre email et votre mot de passe.
+3. En cas d'erreur (identifiants invalides), un message explicite s'affiche.
+4. Après connexion, votre prénom s'affiche dans la barre de navigation et un message de bienvenue apparaît.
+
+## Modifier son profil
+
+1. Cliquez sur votre prénom dans la barre de navigation puis sur « Profil ».
+2. Modifiez vos informations (nom, prénom, email, adresse, mot de passe, etc.).
+3. Validez le formulaire. Si l'email est déjà utilisé, un message d'erreur s'affiche.
+4. Un message de succès confirme la mise à jour.
+
+## Gestion des erreurs
+- Les erreurs d'inscription et de connexion sont affichées de façon claire (ex : « Cette adresse email est déjà utilisée »).
+- Les champs sont validés avant envoi.
+- Les erreurs de modification de profil sont explicites. 

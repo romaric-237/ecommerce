@@ -15,6 +15,13 @@
           :categoryId="selectedCategoryId"
           :categoryName="selectedCategoryName"/>
     </div>
+    <footer class="cgv-footer">
+      <div class="cgv-content">
+        <strong>Conditions Générales de Vente &amp; RGPD</strong><br>
+        En utilisant ce site, vous acceptez nos <router-link to="/privacy-policy">conditions générales de vente</router-link> et notre politique de confidentialité (RGPD).<br>
+        Vos données personnelles sont protégées et utilisées uniquement dans le cadre de votre expérience d'achat. Pour plus d'informations, consultez la <router-link to="/privacy-policy">Politique de Confidentialité</router-link>.
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -211,5 +218,24 @@ export default {
 .main-content {
   display: flex; /* Utilise Flexbox pour aligner le menu et la liste de produits */
   flex-grow: 1; /* Permet au contenu principal de prendre l'espace restant */
+}
+
+.cgv-footer {
+  background: #f8f9fa;
+  color: #888;
+  text-align: center;
+  font-size: 0.95em;
+  padding: 18px 8px 12px 8px;
+  border-top: 1px solid #e0e0e0;
+  margin-top: auto;
+}
+.cgv-footer a, .cgv-footer .router-link-active {
+  color: #42b983;
+  text-decoration: underline;
+  margin: 0 2px;
+}
+.cgv-content {
+  max-width: 700px;
+  margin: 0 auto;
 }
 </style>

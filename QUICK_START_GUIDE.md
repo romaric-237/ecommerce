@@ -20,6 +20,20 @@
   - Un prix
 - Cliquez sur un produit pour plus de détails
 
+### 0. Créer un compte
+- Cliquez sur « S'inscrire » dans la barre de navigation
+- Remplissez le formulaire d'inscription
+- Validez pour accéder à toutes les fonctionnalités
+
+### 0bis. Se connecter
+- Cliquez sur « Se connecter »
+- Entrez vos identifiants
+- Accédez à votre espace personnel
+
+### 0ter. Modifier son profil
+- Cliquez sur votre prénom puis sur « Profil »
+- Modifiez vos informations et validez
+
 ## Fonctionnalités essentielles
 
 ### Navigation rapide

@@ -115,6 +115,101 @@ Réponse :
 }
 ```
 
+### Authentification
+
+#### Inscription d'un utilisateur
+```http
+POST /auth/register
+```
+Payload :
+```json
+{
+  "nom": "Dupont",
+  "prenom": "Jean",
+  "email": "jean.dupont@email.com",
+  "adresse": "1 rue de Paris",
+  "codePostal": "75000",
+  "ville": "Paris",
+  "password": "Motdepasse123"
+}
+```
+Réponse :
+```json
+{
+  "success": true,
+  "message": "Inscription réussie pour Jean",
+  "user": { ... }
+}
+```
+Erreur (email déjà utilisé) :
+```json
+{
+  "success": false,
+  "error": "Erreur de validation",
+  "message": "L'adresse email est déjà utilisée"
+}
+```
+
+#### Connexion d'un utilisateur
+```http
+POST /auth/login
+```
+Payload :
+```json
+{
+  "email": "jean.dupont@email.com",
+  "password": "Motdepasse123"
+}
+```
+Réponse :
+```json
+{
+  "accessToken": "...",
+  "refreshToken": "...",
+  "user": { ... }
+}
+```
+Erreur (identifiants invalides) :
+```json
+{
+  "success": false,
+  "error": "Identifiants invalides"
+}
+```
+
+#### Mise à jour du profil utilisateur
+```http
+PUT /users/update/{id}
+```
+Payload :
+```json
+{
+  "nom": "Dupont",
+  "prenom": "Jean",
+  "email": "nouvel.email@email.com",
+  "adresse": "1 rue de Paris",
+  "codePostal": "75000",
+  "ville": "Paris",
+  "password": "NouveauMotdepasse123"
+}
+```
+Réponse :
+```json
+{
+  "success": true,
+  "message": "Profil mis à jour avec succès",
+  "user": { ... }
+}
+```
+Erreur (email déjà utilisé) :
+```json
+{
+  "success": false,
+  "error": "Erreur de validation",
+  "message": "L'adresse email est déjà utilisée"
+}
+```
+
 ## Codes d'erreur
 
 | Code | Description |

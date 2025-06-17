@@ -7,6 +7,7 @@ import HomeView from '../views/HomePageView.vue'
 import Register from '../components/Register.vue'
 import Login from '../components/Login.vue'
 import ProductList from '../components/ProductList.vue'
+import ProfileView from '../views/ProfileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -70,6 +71,12 @@ const router = createRouter({
       path: '/products',
       name: 'products',
       component: ProductList
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true }
     },
     // {
     //   path: '/category/:id',

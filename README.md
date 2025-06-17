@@ -1,4 +1,3 @@
-
 # E-Commerce Application
 
 ## Description
@@ -91,6 +90,13 @@ frontend/
 
 ## Fonctionnalités
 
+### Gestion des Utilisateurs
+- Inscription d'un nouvel utilisateur (validation des champs, unicité de l'email)
+- Connexion sécurisée (JWT, gestion du token)
+- Modification du profil utilisateur (nom, prénom, email, adresse, mot de passe, etc.)
+- Affichage du message de bienvenue personnalisé après connexion
+- Gestion des erreurs explicites (ex : email déjà utilisé, données invalides)
+
 ### Gestion des Produits
 - Affichage de la liste des produits
 - Détails des produits
@@ -109,6 +115,11 @@ frontend/
 - Animations et transitions fluides
 
 ## API Endpoints
+
+### Authentification & Utilisateurs
+- `POST /api/auth/register` - Inscription d'un utilisateur
+- `POST /api/auth/login` - Connexion d'un utilisateur
+- `PUT /api/users/update/{id}` - Mise à jour du profil utilisateur
 
 ### Produits
 - `GET /api/products` - Liste tous les produits

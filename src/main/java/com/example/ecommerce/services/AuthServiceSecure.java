@@ -76,6 +76,9 @@ public class AuthServiceSecure {
             log.info("Nouvel utilisateur enregistré : {}", user.getEmail());
 
             return generateAuthResponse(user);
+        } catch (IllegalArgumentException e) {
+            // Propager directement l'erreur de validation
+            throw e;
         } catch (Exception e) {
             log.error("Erreur lors de l'enregistrement : {}", e.getMessage());
             throw new RuntimeException("Erreur lors de la création du compte : " + e.getMessage());

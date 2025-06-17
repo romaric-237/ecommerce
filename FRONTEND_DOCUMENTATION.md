@@ -70,6 +70,20 @@ Affiche les détails complets d'un produit.
 </template>
 ```
 
+## Composants d'authentification et profil
+
+### Register.vue
+Formulaire d'inscription avec validation des champs, gestion des erreurs (email déjà utilisé, champs obligatoires), et intégration API. Affiche un message d'erreur explicite en cas d'échec.
+
+### Login.vue
+Formulaire de connexion moderne, gestion des erreurs (identifiants invalides), redirection après connexion, affichage du message de bienvenue.
+
+### ProfileView.vue
+Permet à l'utilisateur connecté de modifier ses informations (nom, prénom, email, adresse, mot de passe). Validation côté client et gestion des erreurs serveur (email déjà utilisé, données invalides). Affiche un message de succès ou d'erreur.
+
+### Navbar.vue
+Affiche le prénom de l'utilisateur connecté, propose un menu utilisateur (profil, déconnexion), et adapte la navigation selon l'état d'authentification.
+
 ## Services API
 
 ### productService.js
@@ -108,6 +122,9 @@ export default {
   }
 };
 ```
+
+### authService.js
+Gère l'inscription, la connexion, la gestion du token JWT, le stockage local des informations utilisateur, la validation du token, la déconnexion, et la gestion automatique du rafraîchissement du token.
 
 ## Styles et Thème
 
@@ -194,6 +211,16 @@ module.exports = {
 2. **Dépendances**
    - Mise à jour régulière
    - Gestion des versions
+
+## Gestion des erreurs
+- Les messages d'erreur du backend sont affichés de façon explicite dans les formulaires (ex : "Cette adresse email est déjà utilisée").
+- Les champs sont validés côté client avant envoi.
+- Les erreurs globales sont affichées en haut du formulaire.
+
+## Navigation et routes protégées
+- Les routes /profile sont protégées et nécessitent une authentification.
+- Les routes /login et /register redirigent vers l'accueil si l'utilisateur est déjà connecté.
+- La Navbar s'adapte dynamiquement à l'état de connexion.
 
 ## Déploiement
 
