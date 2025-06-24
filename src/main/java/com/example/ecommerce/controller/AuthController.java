@@ -136,14 +136,35 @@ public class AuthController {
     public ResponseEntity<?> validateToken(HttpServletRequest request) {
         try {
             String authHeader = request.getHeader("Authorization");
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                return ResponseEntity.ok(Map.of("valid", true, "message", "Token valide"));
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("valid", false, "message", "Token manquant"));
             }
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("valid", false, "message", "Token manquant"));
+            
+            // Extraire le token
+            String token = authHeader.substring(7);
+            if (token.trim().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("valid", false, "message", "Token vide"));
+            }
+            
+            // Valider le token avec le service JWT
+            try {
+                String username = authService.validateToken(token);
+                return ResponseEntity.ok(Map.of(
+                    "valid", true, 
+                    "message", "Token valide",
+                    "username", username
+                ));
+            } catch (SecurityException e) {
+                log.warn("Token invalide : {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("valid", false, "message", "Token invalide : " + e.getMessage()));
+            }
         } catch (Exception e) {
+            log.error("Erreur lors de la validation du token : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("valid", false, "message", "Token invalide"));
+                    .body(Map.of("valid", false, "message", "Erreur de validation"));
         }
     }
 }

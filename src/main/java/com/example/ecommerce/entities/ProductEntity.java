@@ -35,6 +35,7 @@ public class ProductEntity {
     private Taille taille;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @JsonBackReference
     private CategoryEntity category;
 
     public int getId() {

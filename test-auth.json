@@ -1,0 +1,9 @@
+{
+  "email": "test@test.com",
+  "password": "Test123!",
+  "nom": "Test",
+  "prenom": "User",
+  "adresse": "123 Test St",
+  "codePostal": "12345",
+  "ville": "Test City"
+} 

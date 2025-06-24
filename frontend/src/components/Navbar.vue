@@ -1,9 +1,13 @@
 <script>
 import authService from '@/services/authService';
 import { TokenUtils } from '@/services/http-common';
+import Cart from '@/components/Cart.vue';
 
 export default {
   name: "Navbar",
+  components: {
+    Cart
+  },
 
   data() {
     return {
@@ -146,6 +150,10 @@ export default {
           </li>
         </ul>
       </div>
+      
+      <!-- Composant Panier -->
+      <Cart />
+      
       <div class="navbar-auth">
         <template v-if="isAuthenticated">
           <div class="user-menu">

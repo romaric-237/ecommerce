@@ -29,12 +29,24 @@ export const TokenUtils = {
   },
 
   setTokens(accessToken, refreshToken) {
+    console.log('=== TOKENUTILS.SETTOKENS ===')
+    console.log('Access token reçu:', accessToken ? 'PRÉSENT' : 'ABSENT')
+    console.log('Refresh token reçu:', refreshToken ? 'PRÉSENT' : 'ABSENT')
+    
     if (accessToken) {
+      console.log('Stockage accessToken dans sessionStorage...')
       sessionStorage.setItem(TOKEN_KEY, accessToken);
+      console.log('AccessToken stocké avec succès')
     }
     if (refreshToken) {
+      console.log('Stockage refreshToken dans localStorage...')
       localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      console.log('RefreshToken stocké avec succès')
     }
+    
+    console.log('=== VÉRIFICATION APRÈS STOCKAGE ===')
+    console.log('AccessToken en sessionStorage:', sessionStorage.getItem(TOKEN_KEY) ? 'PRÉSENT' : 'ABSENT')
+    console.log('RefreshToken en localStorage:', localStorage.getItem(REFRESH_TOKEN_KEY) ? 'PRÉSENT' : 'ABSENT')
   },
 
   clearTokens() {

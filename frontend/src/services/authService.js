@@ -1,5 +1,6 @@
 import {EcommerceApi, TokenUtils} from './http-common.js';
 
+
 const API_URL = 'http://localhost:9999/api/auth/';
 const USER_KEY = 'user';
 
@@ -13,12 +14,31 @@ class AuthService {
         password
       });
       
+      console.log('=== RÉPONSE LOGIN ===')
+      console.log('Réponse complète:', response.data)
+      console.log('Access token présent:', !!response.data.accessToken)
+      console.log('Refresh token présent:', !!response.data.refreshToken)
+      
       if (response.data.accessToken) {
+        console.log('=== STOCKAGE DES TOKENS ===')
+        console.log('Avant stockage - accessToken:', response.data.accessToken)
+        console.log('Avant stockage - refreshToken:', response.data.refreshToken)
+        
         TokenUtils.setTokens(response.data.accessToken, response.data.refreshToken);
+        
+        console.log('=== APRÈS STOCKAGE ===')
+        console.log('Token stocké dans sessionStorage:', sessionStorage.getItem('accessToken'))
+        console.log('Refresh token stocké dans localStorage:', localStorage.getItem('refreshToken'))
+        
         this.setUser(response.data.user);
         
         // Programmer le renouvellement automatique
         this.scheduleTokenRefresh(response.data.expiresIn);
+        
+        // Émettre un événement pour notifier la connexion
+        window.dispatchEvent(new CustomEvent('user-authenticated', {
+          detail: { user: response.data.user }
+        }));
       }
       
       return response.data;
@@ -96,19 +116,26 @@ class AuthService {
     } finally {
       TokenUtils.clearTokens();
       this.clearUser();
+      
+      // Émettre un événement pour notifier la déconnexion
+      window.dispatchEvent(new CustomEvent('user-logged-out'));
+      
       window.location.href = '/login';
     }
   }
 
   setUser(user) {
     if (user) {
-      sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+      console.log('Utilisateur stocké:', user)
+      sessionStorage.setItem(USER_KEY, JSON.stringify(user))
     }
   }
 
   getCurrentUser() {
-    const user = sessionStorage.getItem(USER_KEY);
-    return user ? JSON.parse(user) : null;
+    const user = sessionStorage.getItem(USER_KEY)
+    const parsedUser = user ? JSON.parse(user) : null
+    console.log('Utilisateur récupéré:', parsedUser)
+    return parsedUser
   }
 
   clearUser() {

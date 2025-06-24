@@ -45,6 +45,7 @@
 <script>
 import productService from '@/services/productService';
 import unsplashService from "@/services/unsplashService.js";
+import { useCartStore } from '@/stores/cart';
 
 export default {
   name: 'ProductDetail',
@@ -53,6 +54,10 @@ export default {
       type: [String, Number],
       required: true
     }
+  },
+  setup() {
+    const cartStore = useCartStore();
+    return { cartStore };
   },
   data() {
     return {
@@ -99,11 +104,50 @@ export default {
       }
     },
     addToCart(product) {
-      // Logique pour ajouter le produit au panier (peut émettre un événement ou utiliser Vuex)
-      console.log(`Produit ${product.nom} ajouté au panier !`);
-      alert(`"${product.nom}" a été ajouté au panier !`);
-      // Si vous avez un store Vuex, vous appelleriez une action ici:
-      // this.$store.dispatch('cart/addProduct', product);
+      // Utiliser le store Pinia pour ajouter le produit au panier
+      this.cartStore.addToCart(product);
+      
+      // Notification élégante
+      const notification = document.createElement('div');
+      notification.className = 'cart-notification';
+      notification.innerHTML = `
+        <div class="notification-content">
+          <i class="fas fa-check-circle"></i>
+          <span>"${product.nom}" a été ajouté au panier !</span>
+        </div>
+      `;
+      
+      // Styles pour la notification
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        font-size: 14px;
+        max-width: 300px;
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Animation d'entrée
+      setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // Supprimer la notification après 3 secondes
+      setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
     },
     goBack() {
       // Retourne à la page précédente dans l'historique du navigateur

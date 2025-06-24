@@ -165,6 +165,41 @@ public class AuthServiceSecure {
         }
     }
 
+    @Transactional(readOnly = true)
+    public String validateToken(String token) {
+        try {
+            // Vérifier que ce n'est pas un refresh token
+            if (jwtService.isRefreshToken(token)) {
+                throw new SecurityException("Refresh token ne peut pas être utilisé pour l'authentification");
+            }
+
+            // Extraire le nom d'utilisateur du token
+            String userEmail = jwtService.extractUsername(token);
+            if (userEmail == null) {
+                throw new SecurityException("Impossible d'extraire le nom d'utilisateur du token");
+            }
+
+            // Vérifier que l'utilisateur existe
+            UserEntity user = userRepository.findByEmail(userEmail)
+                    .orElseThrow(() -> new SecurityException("Utilisateur non trouvé"));
+
+            // Créer UserPrincipal pour la validation
+            UserPrincipal userPrincipal = UserPrincipal.create(user);
+
+            // Valider le token
+            if (!jwtService.isTokenValid(token, userPrincipal)) {
+                throw new SecurityException("Token invalide ou expiré");
+            }
+
+            log.debug("Token validé avec succès pour : {}", userEmail);
+            return userEmail;
+
+        } catch (Exception e) {
+            log.warn("Échec de validation du token : {}", e.getMessage());
+            throw new SecurityException("Token invalide : " + e.getMessage());
+        }
+    }
+
     private AuthResponse generateAuthResponse(UserEntity user) {
         UserPrincipal userPrincipal = UserPrincipal.create(user);
         String accessToken = jwtService.generateAccessToken(userPrincipal);

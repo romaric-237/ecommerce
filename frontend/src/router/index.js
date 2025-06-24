@@ -43,7 +43,8 @@ const router = createRouter({
       path: '/product/:id',
       name: 'product-detail',
       component: ProductDetail,
-      props: true // Permet de passer l'ID de la route directement comme prop au composant
+      props: true,
+      meta: { requiresAuth: false }
     },
     // {
     //   path: '/privacy-policy',
