@@ -29,8 +29,24 @@
           <p v-if="product.categoryNom">Catégorie: <span>{{ product.categoryNom }}</span></p>
         </div>
 
+        <div class="product-actions">
+          <button 
+            v-if="!isGestionnaire"
+            @click="addToCart(product)" 
+            class="btn btn-primary btn-lg add-to-cart-btn"
+            :disabled="addingToCart"
+          >
+            <i v-if="!addingToCart" class="fas fa-cart-plus me-2"></i>
+            <span v-if="addingToCart" class="spinner-border spinner-border-sm me-2"></span>
+            {{ addingToCart ? 'Ajout en cours...' : 'Ajouter au panier' }}
+          </button>
+          <div v-else class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+          
+          </div>
+        </div>
+
         <div class="action-buttons">
-          <button @click="addToCart(product)" class="btn-add-to-cart">Ajouter au panier</button>
           <button @click="goBack" class="btn-go-back">Retour</button>
         </div>
       </div>
@@ -46,6 +62,7 @@
 import productService from '@/services/productService';
 import unsplashService from "@/services/unsplashService.js";
 import { useCartStore } from '@/stores/cart';
+import authService from '@/services/authService';
 
 export default {
   name: 'ProductDetail',
@@ -64,7 +81,9 @@ export default {
       product: null,
       isLoading: true,
       error: null,
-      unsplashImageUrl: null
+      unsplashImageUrl: null,
+      addingToCart: false,
+      isGestionnaire: false
     };
   },
   computed: {
@@ -73,6 +92,7 @@ export default {
     }
   },
   async created() {
+    this.isGestionnaire = authService.isGestionnaire();
     await this.fetchProduct();
   },
   watch: {
@@ -104,56 +124,60 @@ export default {
       }
     },
     addToCart(product) {
-      // Utiliser le store Pinia pour ajouter le produit au panier
-      this.cartStore.addToCart(product);
-      
-      // Notification élégante
-      const notification = document.createElement('div');
-      notification.className = 'cart-notification';
-      notification.innerHTML = `
-        <div class="notification-content">
-          <i class="fas fa-check-circle"></i>
-          <span>"${product.nom}" a été ajouté au panier !</span>
-        </div>
-      `;
-      
-      // Styles pour la notification
-      notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #28a745;
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 10000;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        font-size: 14px;
-        max-width: 300px;
-      `;
-      
-      document.body.appendChild(notification);
-      
-      // Animation d'entrée
-      setTimeout(() => {
-        notification.style.transform = 'translateX(0)';
-      }, 100);
-      
-      // Supprimer la notification après 3 secondes
-      setTimeout(() => {
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-          document.body.removeChild(notification);
-        }, 300);
-      }, 3000);
+      if (this.isGestionnaire) {
+        console.warn('Les gestionnaires ne peuvent pas ajouter de produits au panier');
+        return;
+      }
+
+      this.addingToCart = true;
+      this.cartStore.addToCart(product)
+        .then(() => {
+          this.addingToCart = false;
+          const notification = document.createElement('div');
+          notification.className = 'cart-notification';
+          notification.innerHTML = `
+            <div class="notification-content">
+              <i class="fas fa-check-circle"></i>
+              <span>"${product.nom}" a été ajouté au panier !</span>
+            </div>
+          `;
+          
+          notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            font-size: 14px;
+            max-width: 300px;
+          `;
+          
+          document.body.appendChild(notification);
+          
+          setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+          }, 100);
+          
+          setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+              document.body.removeChild(notification);
+            }, 300);
+          }, 3000);
+        })
+        .catch((error) => {
+          this.addingToCart = false;
+          console.error('Erreur lors de l\'ajout au panier:', error);
+        });
     },
     goBack() {
-      // Retourne à la page précédente dans l'historique du navigateur
       this.$router.go(-1);
-      // Ou navigue vers une route spécifique, par exemple la liste des produits
-      // this.$router.push('/products');
     }
   }
 };
@@ -270,7 +294,7 @@ export default {
   color: #333;
 }
 
-.action-buttons {
+.product-actions {
   margin-top: 30px;
   display: flex;
   gap: 15px;

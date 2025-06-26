@@ -6,14 +6,13 @@
     </header>
 
     <div class="main-content">
-      <CategoryList
-          :selectedCategoryId="selectedCategoryId"
-          @category-selected="handleCategorySelected"/>
-
-      <ProductList
-          :is-title-center="true"
-          :categoryId="selectedCategoryId"
-          :categoryName="selectedCategoryName"/>
+      <div id="products-section" class="products-section">
+        <ProductList
+            :is-title-center="true"
+            :categoryId="null"
+            :categoryName="'Tous nos produits'"
+            :isGestionnaire="isGestionnaire"/>
+      </div>
     </div>
     <footer class="cgv-footer">
       <div class="cgv-content">
@@ -26,24 +25,19 @@
 </template>
 
 <script>
-import CategoryList from '@/components/CategoryList.vue';
 import ProductList from '@/components/ProductList.vue';
-import categoryService from '@/services/categoryService.js';
 import authService from '@/services/authService.js';
 
 export default {
   name: 'HomePage',
   components: {
-    CategoryList,
     ProductList
   },
   data() {
     return {
-      selectedCategoryId: null,
-      categories: [],
-      selectedCategoryName: 'Tous les produits',
       user: null,
-      isAuthenticated: false
+      isAuthenticated: false,
+      isGestionnaire: false
     };
   },
   computed: {
@@ -72,7 +66,7 @@ export default {
       
       const messages = [
         'Découvrez nos dernières nouveautés',
-        'Explorez nos catégories et trouvez ce que vous cherchez',
+        'Explorez notre sélection de produits',
         'Profitez de vos achats en ligne !'
       ];
       
@@ -85,12 +79,8 @@ export default {
     // Vérifier l'authentification
     this.checkAuthentication();
     
-    // Charger toutes les catégories au démarrage pour pouvoir trouver leur nom
-    try {
-      this.categories = await categoryService.getAllCategories();
-    } catch (error) {
-      console.error("Erreur lors du chargement des catégories pour le nom :", error);
-    }
+    // Vérifier si l'utilisateur est un gestionnaire
+    this.isGestionnaire = authService.isGestionnaire();
   },
   mounted() {
     // Écouter les événements d'authentification
@@ -103,17 +93,6 @@ export default {
     window.removeEventListener('user-logged-out', this.onUserLoggedOut);
   },
   methods: {
-    handleCategorySelected(categoryId) {
-      this.selectedCategoryId = categoryId;
-      // Mettre à jour le nom de la catégorie pour le titre de ProductList
-      if (categoryId === null) {
-        this.selectedCategoryName = 'Tous les produits';
-      } else {
-        const category = this.categories.find(cat => cat.id === categoryId);
-        this.selectedCategoryName = category ? category.nom : 'Catégorie inconnue';
-      }
-    },
-    
     checkAuthentication() {
       // Vérifier si l'utilisateur est connecté
       this.isAuthenticated = authService.isAuthenticated();
@@ -151,8 +130,8 @@ export default {
 }
 
 .app-header {
-  //background-color: #42b983; /* Couleur d'en-tête */
-  //color: white;
+  /* background-color: #42b983; Couleur d'en-tête */
+  /* color: white; */
   color: #b86161;
   padding: 20px 0;
   text-align: center;
@@ -175,6 +154,10 @@ export default {
   color: #6c757d;
   font-style: italic;
   animation: fadeIn 0.5s ease-in;
+}
+
+.products-section {
+  scroll-margin-top: 20px; /* Espace pour éviter que le contenu soit caché sous la navbar */
 }
 
 /* Animation pour l'apparition du message utilisateur */

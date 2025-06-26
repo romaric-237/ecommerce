@@ -4,11 +4,13 @@ import com.example.ecommerce.entities.Panier;
 import com.example.ecommerce.services.PanierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cart")
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('CLIENT')") // Seuls les clients peuvent accéder au panier
 public class PanierController {
 
     @Autowired

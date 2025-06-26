@@ -27,7 +27,7 @@
            class="col-12 col-md-6 col-lg-4">
         <div class="card card-hover h-100" @click="selectCategory(category.id)">
           <div class="card-body text-center">
-            <i class="fas fa-folder mb-3" style="font-size: 2.5rem; color: var(--bs-primary);"></i>
+            <i class="fas fa-folder mb-3" style="font-size: 1.8rem; color: var(--bs-primary);"></i>
             <h3 class="h5 fw-bold mb-2">{{ category.nom }}</h3>
             <p class="text-muted small mb-0">{{ category.description }}</p>
           </div>
@@ -87,20 +87,54 @@ export default {
 .card-hover {
   transition: all 0.3s ease;
   cursor: pointer;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
 }
 
 .card-hover:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  border-color: var(--bs-primary);
+}
+
+.card-hover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(66, 185, 131, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-hover:hover::before {
+  left: 100%;
 }
 
 .card-body {
   padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.card-hover i {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.card-hover:hover i {
+  transform: scale(1.1);
+  color: var(--bs-primary) !important;
 }
 
 @media (max-width: 768px) {
   .categories-section {
     padding: 1rem 0;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
   }
 }
 </style>

@@ -125,6 +125,12 @@ export const useCartStore = defineStore('cart', {
       console.log('Utilisateur authentifié:', authService.isAuthenticated())
       
       if (authService.isAuthenticated()) {
+        // Vérifier que l'utilisateur est un CLIENT, pas un GESTIONNAIRE
+        if (authService.isGestionnaire()) {
+          console.warn('Les gestionnaires ne peuvent pas ajouter de produits au panier')
+          throw new Error('Les gestionnaires ne peuvent pas ajouter de produits au panier')
+        }
+        
         const userId = authService.getCurrentUser().id
         console.log('ID utilisateur:', userId)
         
@@ -139,6 +145,7 @@ export const useCartStore = defineStore('cart', {
           console.log('Panier rechargé après ajout')
         } catch (error) {
           console.error('Erreur lors de l\'ajout au panier:', error)
+          throw error
         }
       } else {
         console.log('Utilisateur non connecté, ajout au localStorage')

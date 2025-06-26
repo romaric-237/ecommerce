@@ -155,8 +155,8 @@ export default {
         </ul>
       </div>
       
-      <!-- Composant Panier -->
-      <Cart />
+      <!-- Panier (masqué pour les gestionnaires) -->
+      <Cart v-if="!isGestionnaire" />
       
       <div class="navbar-auth">
         <template v-if="isAuthenticated">
