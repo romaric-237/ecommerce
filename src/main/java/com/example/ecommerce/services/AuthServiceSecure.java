@@ -265,6 +265,7 @@ public class AuthServiceSecure {
         userDTO.setCodePostal(user.getCodePostal());
         userDTO.setVille(user.getVille());
         userDTO.setAvatar(user.getAvatar());
+        userDTO.setRole(user.getRole().name());
         return userDTO;
     }
 }

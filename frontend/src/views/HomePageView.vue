@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import CategoryList from '@/components/categoryList.vue';
-import ProductList from '@/components/productList.vue';
+import CategoryList from '@/components/CategoryList.vue';
+import ProductList from '@/components/ProductList.vue';
 import categoryService from '@/services/categoryService.js';
 import authService from '@/services/authService.js';
 

@@ -18,6 +18,7 @@ public class UserDTO {
     private String codePostal;
     private String ville;
     private String avatar;
+    private String role;
 
     public int getId() {
         return id;

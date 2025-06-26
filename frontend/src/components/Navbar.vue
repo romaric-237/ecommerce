@@ -14,7 +14,8 @@ export default {
       activeTab: "produits",
       isAuthenticated: false,
       user: null,
-      isUserMenuOpen: false
+      isUserMenuOpen: false,
+      isGestionnaire: false
     };
   },
   created() {
@@ -48,6 +49,7 @@ export default {
       this.isAuthenticated = authService.isAuthenticated();
       if (this.isAuthenticated) {
         this.user = authService.getCurrentUser();
+        this.isGestionnaire = authService.isGestionnaire();
       }
     },
     async logout() {
@@ -61,6 +63,7 @@ export default {
         this.isAuthenticated = false;
         this.user = null;
         this.isUserMenuOpen = false;
+        this.isGestionnaire = false;
         this.$router.push('/login');
       }
     },
@@ -108,6 +111,7 @@ export default {
       this.isAuthenticated = false;
       this.user = null;
       this.isUserMenuOpen = false;
+      this.isGestionnaire = false;
     }
   },
   watch: {
@@ -178,6 +182,15 @@ export default {
               <router-link to="/orders" class="dropdown-item" @click="isUserMenuOpen = false">
                 <span class="dropdown-icon">🛍️</span>
                 Mes Commandes
+              </router-link>
+              <router-link 
+                v-if="isGestionnaire" 
+                to="/admin/products" 
+                class="dropdown-item admin-link" 
+                @click="isUserMenuOpen = false"
+              >
+                <span class="dropdown-icon">⚙️</span>
+                Administration
               </router-link>
               <div class="dropdown-divider"></div>
               <button @click="logout" class="dropdown-item logout">

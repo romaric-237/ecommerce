@@ -1,5 +1,5 @@
 <script>
-import ProductList from "@/components/productList.vue";
+import ProductList from "@/components/ProductList.vue";
 
 export default {
   name: "ProductListView",

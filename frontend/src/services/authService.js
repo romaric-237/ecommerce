@@ -1,7 +1,7 @@
 import {EcommerceApi, TokenUtils} from './http-common.js';
 
 
-const API_URL = 'http://localhost:9999/api/auth/';
+const API_URL = 'http://localhost:8080/api/auth/';
 const USER_KEY = 'user';
 
 class AuthService {
@@ -136,6 +136,15 @@ class AuthService {
     const parsedUser = user ? JSON.parse(user) : null
     console.log('Utilisateur récupéré:', parsedUser)
     return parsedUser
+  }
+
+  getUserRole() {
+    const user = this.getCurrentUser();
+    return user ? user.role : null;
+  }
+
+  isGestionnaire() {
+    return this.getUserRole() === 'GESTIONNAIRE';
   }
 
   clearUser() {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="product")
@@ -37,6 +38,13 @@ public class ProductEntity {
     @JoinColumn(name = "category_id")
     @JsonBackReference
     private CategoryEntity category;
+    
+    // Champs d'audit pour tracer les modifications
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+    
+    @Column(name = "updated_by")
+    private String updatedBy;
 
     public int getId() {
         return id;

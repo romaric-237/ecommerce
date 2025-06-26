@@ -1,4 +1,5 @@
 package com.example.ecommerce.entities;
+import com.example.ecommerce.ennumeration.UserRole;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -62,8 +63,9 @@ public class UserEntity  {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role = "ROLE_USER";
+    private UserRole role = UserRole.CLIENT;
 
     public String getAvatar() {
         return avatar;

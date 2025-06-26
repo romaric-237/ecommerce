@@ -86,8 +86,11 @@ public class SecurityConfig {
                     // Points de terminaison publics
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/api/products/**").permitAll()
-                        .requestMatchers("/api/categories/**").permitAll()
+                    .requestMatchers("/api/categories/**").permitAll()
                     .requestMatchers("/actuator/health").permitAll()
+                    // 🔒 Endpoints d'administration - Rôle GESTIONNAIRE requis
+                    .requestMatchers("/api/admin/products/**").hasRole("GESTIONNAIRE")
+                    .requestMatchers("/api/products/update/**").hasRole("GESTIONNAIRE")
                     // Tous les autres points de terminaison nécessitent une authentification
                     .anyRequest().authenticated();
             });

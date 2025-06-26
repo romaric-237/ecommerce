@@ -29,8 +29,10 @@ public class UserPrincipal implements UserDetails {
     }
 
     public static UserPrincipal create(UserEntity userEntity) {
+        // Utiliser le rôle réel de l'utilisateur avec le préfixe ROLE_
+        String role = "ROLE_" + userEntity.getRole().name();
         Collection<GrantedAuthority> authorities = Collections.singletonList(
-            new SimpleGrantedAuthority("ROLE_USER" )
+            new SimpleGrantedAuthority(role)
         );
 
         return new UserPrincipal(

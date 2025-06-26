@@ -2,7 +2,7 @@
 import {EcommerceApi} from './http-common.js';
 import Product from "@/models/Product.js";
 
-const API_BASE_URL = 'http://localhost:9999/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 const productService = {
     /**
@@ -73,6 +73,94 @@ const productService = {
             }
             
             throw error;
+        }
+    },
+
+    /**
+     * Met à jour un produit (réservé aux gestionnaires)
+     * @param {number} productId L'ID du produit à mettre à jour
+     * @param {Object} productData Les nouvelles données du produit
+     * @returns {Promise<Object>} Une promesse qui résout en le produit mis à jour
+     */
+    async updateProduct(productId, productData) {
+        try {
+            console.log('Tentative de mise à jour du produit:', productId, productData);
+            
+            const response = await EcommerceApi.put(`/products/update/${productId}`, productData);
+            console.log('Produit mis à jour avec succès:', response.data);
+            
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur lors de la mise à jour du produit ${productId}:`, error);
+            
+            // Gérer les erreurs spécifiques
+            if (error.response?.status === 403) {
+                throw new Error('Accès refusé. Vous devez être gestionnaire pour modifier les produits.');
+            } else if (error.response?.status === 404) {
+                throw new Error('Produit non trouvé.');
+            } else if (error.response?.status === 400) {
+                const errorMessage = error.response.data?.message || 'Données invalides';
+                throw new Error(`Erreur de validation: ${errorMessage}`);
+            }
+            
+            throw new Error('Erreur lors de la mise à jour du produit. Veuillez réessayer.');
+        }
+    },
+
+    /**
+     * Met à jour un produit via l'endpoint admin (alternative)
+     * @param {number} productId L'ID du produit à mettre à jour
+     * @param {Object} productData Les nouvelles données du produit
+     * @returns {Promise<Object>} Une promesse qui résout en le produit mis à jour
+     */
+    async updateProductAdmin(productId, productData) {
+        try {
+            console.log('Tentative de mise à jour du produit (admin):', productId, productData);
+            
+            const response = await EcommerceApi.put(`/admin/products/${productId}`, productData);
+            console.log('Produit mis à jour avec succès (admin):', response.data);
+            
+            return response.data;
+        } catch (error) {
+            console.error(`Erreur lors de la mise à jour du produit ${productId} (admin):`, error);
+            
+            // Gérer les erreurs spécifiques
+            if (error.response?.status === 403) {
+                throw new Error('Accès refusé. Vous devez être gestionnaire pour accéder à cette fonctionnalité.');
+            } else if (error.response?.status === 404) {
+                throw new Error('Produit non trouvé.');
+            } else if (error.response?.status === 400) {
+                const errorMessage = error.response.data?.message || 'Données invalides';
+                throw new Error(`Erreur de validation: ${errorMessage}`);
+            }
+            
+            throw new Error('Erreur lors de la mise à jour du produit. Veuillez réessayer.');
+        }
+    },
+
+    /**
+     * Récupère tous les produits (version admin avec plus de détails)
+     * @returns {Promise<Array>} Une promesse qui résout en une liste de produits
+     */
+    async getAllProductsAdmin() {
+        try {
+            const response = await EcommerceApi.get('/admin/products');
+            console.log('Réponse API produits admin:', response.data, 'Status:', response.status);
+            
+            if (!response.data || !Array.isArray(response.data)) {
+                console.log('Aucun produit trouvé (admin)');
+                return [];
+            }
+            
+            return response.data;
+        } catch (error) {
+            console.error("Erreur lors de la récupération des produits (admin):", error);
+            
+            if (error.response?.status === 403) {
+                throw new Error('Accès refusé. Vous devez être gestionnaire pour accéder à cette fonctionnalité.');
+            }
+            
+            return [];
         }
     }
 };

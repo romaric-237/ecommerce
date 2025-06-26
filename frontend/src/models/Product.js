@@ -1,7 +1,7 @@
 // src/models/Product.js
 
 export default class Product {
-    constructor({id, nom, description, marque, prix, thumbnailUrl, genre, taille, category, categoryNom}) {
+    constructor({id, nom, description, marque, prix, thumbnailUrl, genre, taille, categoryId, categoryNom}) {
         this.id = id;
         this.nom = nom;
         this.description = description;
@@ -10,7 +10,7 @@ export default class Product {
         this.thumbnailUrl = thumbnailUrl;
         this.genre = genre;
         this.taille = taille;
-        this.category = category; // Cet objet sera l'objet CategoryEntity brut si renvoyé par le backend
+        this.categoryId = categoryId; // Utiliser categoryId directement
         this.categoryNom = categoryNom
     }
 
@@ -28,11 +28,12 @@ export default class Product {
      * @param {string} [data.thumbnailUrl]
      * @param {string} [data.genre]
      * @param {string} [data.taille]
-     * @param {Object} [data.category] - L'objet CategoryEntity ou juste un ID.
+     * @param {number} [data.categoryId] - L'ID de la catégorie.
+     * @param {string} [data.categoryNom] - Le nom de la catégorie.
      * @returns {Product} Une nouvelle instance de Product.
      */
-    static build({id, nom, description, marque, prix, thumbnailUrl, genre, taille, category, categoryNom}) {
-        return new Product({id, nom, description, marque, prix, thumbnailUrl, genre, taille, category, categoryNom});
+    static build({id, nom, description, marque, prix, thumbnailUrl, genre, taille, categoryId, categoryNom}) {
+        return new Product({id, nom, description, marque, prix, thumbnailUrl, genre, taille, categoryId, categoryNom});
     }
 
     /**
@@ -56,7 +57,7 @@ export default class Product {
             thumbnailUrl: value.thumbnailUrl,
             genre: value.genre,
             taille: value.taille,
-            category: value.category ? value.category : null,
+            categoryId: value.categoryId ? value.categoryId : null,
             categoryNom: value.categoryNom ? value.categoryNom : null
         });
     }
@@ -94,7 +95,7 @@ export default class Product {
             thumbnailUrl: this.thumbnailUrl,
             genre: this.genre,
             taille: this.taille,
-            category: this.category,
+            categoryId: this.categoryId,
             categoryNom: this.categoryNom
         };
     }
