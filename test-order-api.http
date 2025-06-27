@@ -1,0 +1,54 @@
+### Test de l'API de création de commande
+
+### 1. Authentification pour obtenir un token JWT
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "client@test.com",
+  "password": "password"
+}
+
+### 2. Créer une commande (utiliser le token obtenu)
+POST http://localhost:8080/api/orders
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "paymentMethod": "CREDIT_CARD",
+  "shippingAddress": {
+    "firstName": "Jean",
+    "lastName": "Dupont",
+    "address": "123 Rue de la Paix",
+    "city": "Paris",
+    "postalCode": "75001",
+    "country": "France",
+    "phone": "0123456789"
+  },
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2,
+      "unitPrice": 29.99
+    },
+    {
+      "productId": 2,
+      "quantity": 1,
+      "unitPrice": 59.99
+    }
+  ],
+  "totalAmount": 119.97,
+  "comments": "Livraison en point relais si possible"
+}
+
+### 3. Récupérer les commandes de l'utilisateur
+GET http://localhost:8080/api/orders/my-orders
+Authorization: Bearer {{auth_token}}
+
+### 4. Récupérer une commande par ID
+GET http://localhost:8080/api/orders/1
+Authorization: Bearer {{auth_token}}
+
+### 5. Récupérer une commande par numéro
+GET http://localhost:8080/api/orders/number/CMD-1703123456789-123
+Authorization: Bearer {{auth_token}} 

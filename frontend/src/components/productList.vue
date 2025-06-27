@@ -99,7 +99,9 @@
               <div class="mt-auto">
                 <div class="d-flex justify-content-between align-items-center">
                   <span class="product-price">{{ formatPrice(product.prix) }}</span>
+                  <!-- Masquer le bouton pour les gestionnaires -->
                   <button
+                    v-if="!isGestionnaire"
                     @click="addToCart(product)"
                     class="btn btn-success btn-sm"
                     :disabled="addingToCart === product.id"
@@ -108,6 +110,11 @@
                     <i v-else class="fas fa-cart-plus me-1"></i>
                     {{ addingToCart === product.id ? 'Ajout...' : 'Ajouter' }}
                   </button>
+                  <!-- Afficher un message pour les gestionnaires -->
+                  <span v-else class="text-muted small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Gestionnaire
+                  </span>
                 </div>
               </div>
             </div>
@@ -186,6 +193,10 @@ export default {
     categoryName: {
       type: String,
       default: 'Tous les produits'
+    },
+    isGestionnaire: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

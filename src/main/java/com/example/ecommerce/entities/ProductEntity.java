@@ -30,6 +30,9 @@ public class ProductEntity {
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
 
+    @Column(name = "stock", nullable = false)
+    private Integer stock = 0;
+
     @Enumerated(EnumType.STRING)
     private Genre genre;
     @Enumerated(EnumType.STRING)
@@ -92,6 +95,14 @@ public class ProductEntity {
 
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
     }
 
     public Genre getGenre() {

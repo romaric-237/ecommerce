@@ -42,7 +42,7 @@
           </button>
           <div v-else class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>
-          
+            Mode gestionnaire - Vous ne pouvez pas ajouter de produits au panier
           </div>
         </div>
 
@@ -88,7 +88,14 @@ export default {
   },
   computed: {
     displayedImageUrl() {
-      return  this.unsplashImageUrl || 'https://via.placeholder.com/400x300?text=Image+Produit';
+      // Prioriser l'URL du produit si elle existe
+      if (this.product && this.product.thumbnailUrl) {
+        // Ajouter un paramètre de cache pour forcer le rechargement
+        const cacheBuster = new Date().getTime();
+        return `${this.product.thumbnailUrl}?t=${cacheBuster}`;
+      }
+      // Fallback sur l'image Unsplash ou placeholder
+      return this.unsplashImageUrl || 'https://via.placeholder.com/400x300?text=Image+Produit';
     }
   },
   async created() {
@@ -108,7 +115,9 @@ export default {
       try {
         const fetchedProduct = await productService.getProductById(this.id);
         this.product = fetchedProduct;
-        if (this.product ) {
+        
+        // Utiliser l'image Unsplash seulement si le produit n'a pas d'URL d'image
+        if (this.product && !this.product.thumbnailUrl) {
           const query = this.product.nom || this.product.categoryNom || this.product.marque || 'product';
           this.unsplashImageUrl = await unsplashService.searchImage(query);
         }

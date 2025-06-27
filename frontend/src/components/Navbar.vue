@@ -179,7 +179,7 @@ export default {
                 <span class="dropdown-icon">👤</span>
                 Mon Profil
               </router-link>
-              <router-link to="/orders" class="dropdown-item" @click="isUserMenuOpen = false">
+              <router-link v-if="!isGestionnaire" to="/my-orders" class="dropdown-item" @click="isUserMenuOpen = false">
                 <span class="dropdown-icon">🛍️</span>
                 Mes Commandes
               </router-link>

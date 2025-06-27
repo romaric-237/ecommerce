@@ -9,6 +9,8 @@ import Login from '../components/Login.vue'
 import ProductList from '../components/ProductList.vue'
 import ProfileView from '../views/ProfileView.vue'
 import AdminProductManagement from '../views/AdminProductManagement.vue'
+import CheckoutView from '../views/CheckoutView.vue'
+import MyOrdersView from '../views/MyOrdersView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -90,6 +92,18 @@ const router = createRouter({
         requiresAuth: true,
         requiresRole: 'GESTIONNAIRE'
       }
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: CheckoutView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/my-orders',
+      name: 'my-orders',
+      component: MyOrdersView,
+      meta: { requiresAuth: true }
     },
     // {
     //   path: '/category/:id',

@@ -1,0 +1,55 @@
+### 1. Connexion pour obtenir un token (remplacez par vos identifiants de client)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "client@test.com",
+  "password": "password"
+}
+
+### 2. Création d'une commande (succès)
+# Remplacez {TOKEN} par le token obtenu
+POST http://localhost:8080/api/orders
+Authorization: Bearer {TOKEN}
+Content-Type: application/json
+
+{
+  "paymentMethod": "CREDIT_CARD",
+  "shippingAddress": "123 Rue de Livraison",
+  "shippingPostalCode": "75001",
+  "shippingCity": "Paris",
+  "shippingCountry": "France",
+  "shippingPhone": "0123456789",
+  "shippingEmail": "client@test.com",
+  "comments": "Livrer rapidement svp",
+  "cartId": 1
+}
+
+### 3. Création d'une commande (échec - stock insuffisant)
+POST http://localhost:8080/api/orders
+Authorization: Bearer {TOKEN}
+Content-Type: application/json
+
+{
+  "paymentMethod": "PAYPAL",
+  "shippingAddress": "123 Rue de Livraison",
+  "shippingPostalCode": "75001",
+  "shippingCity": "Paris",
+  "shippingCountry": "France",
+  "shippingPhone": "0123456789",
+  "shippingEmail": "client@test.com",
+  "comments": "Test stock",
+  "cartId": 9999
+}
+
+### 4. Récupération des commandes de l'utilisateur
+GET http://localhost:8080/api/orders/my-orders
+Authorization: Bearer {TOKEN}
+
+### 5. Récupération d'une commande par ID
+GET http://localhost:8080/api/orders/1
+Authorization: Bearer {TOKEN}
+
+### 6. Récupération d'une commande par numéro
+GET http://localhost:8080/api/orders/number/CMD-1703123456789-123
+Authorization: Bearer {TOKEN} 

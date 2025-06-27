@@ -130,8 +130,8 @@ export default {
     }
 
     const proceedToCheckout = () => {
-      // TODO: Implémenter la logique de checkout
-      alert('Fonctionnalité de commande à implémenter')
+      cartStore.closeCart()
+      router.push('/checkout')
     }
 
     return {
